@@ -1,7 +1,8 @@
 <img src="http://i.imgur.com/6qfQJOR.jpg" width="100%" height=auto>
 Java remake of the board game Aggravation (deluxe party edition) for 2-6 players. *Original game Copyright 1965 by CO-5 Company Inc., Benton Harbor, Michigan 49022*
 
-## Original Rules
+#Rules
+##Original
 >###ACTUAL BOARD
 <img src="http://i.imgur.com/aPce8kK.jpg" width="100%" height=auto>
 >###BOARD DIAGRAM
@@ -22,7 +23,7 @@ Java remake of the board game Aggravation (deluxe party edition) for 2-6 players
 * When jumping between the corner shortcuts, you can only roll to land on another shortcut. This means if you want to go to your home row, you MUST land exactly on the corner one turn, then on your next turn go down your row.
 * I am not doing partnership/team play.
 
-##Actual Gameplay/Rules Summary
+#Actual Gameplay/Rules Summary
 ###Choosing players
 Increment the player count to enable more places to enter player names. For each player, enter a name and choose a color (red, blue, green, white, orange, or yellow). Only one player per color. At least 2 and no more than 6 players can be created.
 
@@ -38,8 +39,11 @@ The color to go first is randomly chosen from the current player list. The remai
 ###Winning the game
 The moment a player has all four marbles in their home base, they have won. A message will be displayed and the game will exit.
 
-##Extras?
+###Extras?
 * Game save/continue
 * CPU Player
 * Drag and drop marbles
 * Marble movement animations
+
+#Credits
+This Java version of Aggravation was made entirely by Jared Bennett for COP3252. <a href="https://github.com/jrdbnntt/aggravation">GitHub Repo</a>
