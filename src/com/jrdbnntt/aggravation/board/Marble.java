@@ -22,4 +22,7 @@ public class Marble {
 	public int getOwner() {
 		return this.ownerPlayerNum;
 	}
+	public Color getColor() {
+		return this.marbleColor;
+	}
 }

@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -17,6 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 import com.jrdbnntt.aggravation.Aggravation;
+import com.jrdbnntt.aggravation.game.Game;
+import com.jrdbnntt.aggravation.game.Player;
+import com.sun.javafx.geom.Shape;
 
 
 @SuppressWarnings("serial")
@@ -50,6 +54,7 @@ public class Board extends JPanel implements ComponentListener {
 		this.setBackground(backgroundColor);
 		this.addComponentListener(this);
 		updateBoard();
+		initializeBoard();
 		
 	}
 	
@@ -87,7 +92,7 @@ public class Board extends JPanel implements ComponentListener {
 		final double ZONE_RAD_OFFSET = 2*Math.PI / Aggravation.MAX_PLAYERS;
 		final int SPACE_OFFSET_UNITS = 2;
 		final int CENTER_OFFSET_UNITS = SPACE_OFFSET_UNITS*4;
-		final int BASE_OFFSET_UNITS = SPACE_OFFSET_UNITS*2;
+		final int BASE_OFFSET_UNITS = SPACE_OFFSET_UNITS*3;
 		
 		Rectangle2D b = (Rectangle2D) this.getBounds();
 		Point2D origin = new Point2D.Double(b.getWidth()/2, b.getHeight()/2);
@@ -109,7 +114,7 @@ public class Board extends JPanel implements ComponentListener {
 		
 		
 		//Calculate spaces, keeping any marbles if they exist
-		u = size/40;
+		u = size/45;
 		
 		
 		/* Get the base zone grid points
@@ -136,7 +141,7 @@ public class Board extends JPanel implements ComponentListener {
 		}
 		
 		//make the actual spaces
-		Space.setDiameter(u);
+		Space.setDiameter(u*1.3);
 		center = new Space(origin.getX(),origin.getY(), (center != null)? center.getMarble() : null);
 		for(int zone = 0, pos, curr; zone < Aggravation.MAX_PLAYERS; ++zone) {
 			pos = zone*ZONE_OFFSET;
@@ -201,17 +206,6 @@ public class Board extends JPanel implements ComponentListener {
 			}
 			
 			
-//			
-//			for(int i = 0; i < Aggravation.MARBLES_PER_PLAYER; ++i) {
-//				r = CENTER_OFFSET_UNITS*u + (HOME_OFFSET_UNITS+SPACE_OFFSET_UNITS*i)*u;
-//				x = r*Math.cos(rad);
-//				y = r*Math.sin(rad);
-//				home[zone][i] = new Space(origin.getX()+x,origin.getY()-y, (home[zone][i] != null)? home[zone][i].getMarble() : null);
-//			}
-//			
-			//parallel path
-			
-			//perpendicular path
 		}
 	}
 	
@@ -221,11 +215,12 @@ public class Board extends JPanel implements ComponentListener {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
 		int pos = 0;
+		Color c;
 		
 		g2d.setRenderingHints(Aggravation.RENDERING_HINTS);
 		
 		//Draw Background
-		g2d.setColor(Color.BLUE);
+		g2d.setColor(Color.GRAY);
 		g2d.fill(bg);
 		
 		//Draw Spaces
@@ -233,16 +228,36 @@ public class Board extends JPanel implements ComponentListener {
 		g2d.fill(center.getShape());
 		for(Space s : loop) {
 			if(s != null) {
-				g2d.fill(s.getShape());
-				g2d.drawString(""+(pos++), (float)s.getShape().getX(), (float)s.getShape().getY());
+				Ellipse2D circle = s.getShape();
+				g2d.draw(circle);
+				g2d.drawString(""+(pos++), (float)circle.getX(), (float)circle.getY());
+									
+				if(s.hasMarble()) {
+					//draw the marble
+					c = g2d.getColor();
+					g2d.setColor(s.getMarble().getColor());
+					g2d.fill(circle);
+					g2d.setColor(c);
+				}
+				
 			}
 		}
 		for(Space[] b : base) {
 			pos = 0;
 			for(Space s : b) {
 				if(s != null) {
-					g2d.fill(s.getShape());
-					g2d.drawString(""+(pos++), (float)s.getShape().getX(), (float)s.getShape().getY());
+					Ellipse2D circle = s.getShape();
+					g2d.draw(circle);
+					g2d.drawString(""+(pos++), (float)circle.getX(), (float)circle.getY());
+										
+					if(s.hasMarble()) {
+						//draw the marble
+						c = g2d.getColor();
+						g2d.setColor(s.getMarble().getColor());
+						g2d.fill(circle);
+						g2d.setColor(c);
+					}
+				
 				}
 			}
 		}
@@ -250,14 +265,22 @@ public class Board extends JPanel implements ComponentListener {
 			pos = 0;
 			for(Space s : h) {
 				if(s != null) {
-					g2d.fill(s.getShape());
-					g2d.drawString(""+(pos++), (float)s.getShape().getX(), (float)s.getShape().getY());
+					Ellipse2D circle = s.getShape();
+					g2d.draw(circle);
+					g2d.drawString(""+(pos++), (float)circle.getX(), (float)circle.getY());
+										
+					if(s.hasMarble()) {
+						//draw the marble
+						c = g2d.getColor();
+						g2d.setColor(s.getMarble().getColor());
+						g2d.fill(circle);
+						g2d.setColor(c);
+					}
 				}
 			}
 		}
 		
 		
-		//Draw Marbles
 		
 	}
 
@@ -270,5 +293,22 @@ public class Board extends JPanel implements ComponentListener {
 	@Override
 	public void componentResized(ComponentEvent e) {
 		updateBoard();
+	}
+	
+	
+	/**
+	 * Sets up player marbles in base for all in current game
+	 */
+	private void initializeBoard() {
+		Player p;
+		
+		for(int zone = 0; zone < base.length; ++zone) {
+			for(Space s : base[zone]) {
+				p = Game.getCurrentInstance().getPlayer(zone);
+				if(p != null) {
+					s.setMarble(new Marble(zone, p.getColor()));
+				}
+			}
+		}
 	}
 }

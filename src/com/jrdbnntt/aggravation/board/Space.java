@@ -44,4 +44,7 @@ public class Space {
 	public void setMarble(Marble m) {
 		this.marble = m;
 	}
+	public boolean hasMarble() {
+		return this.marble != null;
+	}
 }
