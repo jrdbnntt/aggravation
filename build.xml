@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project name="Aggravation" basedir="." default="build-runnable">
+	<property name="src.dir" value="src" />
+	<property name="bin.dir" value="bin" />
+	<property name="img.dir" value="img" />
+	<property name="basePackage" value="com.jrdbnntt.aggravation" />
+	
+	<!-- This is only for making jars to turn in. Compile with eclipse -->
+	
+	<!-- For testing/playing. Does not have src -->
+	<target name="build-runnable" description="Compile runnable jar">
+		<jar destfile="Aggravation.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="${basePackage}.Aggravation"/>
+				<attribute name="Class-Path" value="."/>
+				<attribute name="Created-By" value="Jared Bennett"/>
+			</manifest>
+			<fileset dir="${bin.dir}"/>
+			<fileset dir="." includes="${img.dir}/**"/>
+			<fileset dir="." includes="README.*"/>
+			<fileset dir="." includes="LICENSE"/>
+		</jar>
+	</target>
+	
+	
+	<!-- For turnin.  -->
+	<target name="build-turnin" description="Compile runnable jar, including all source">
+		<jar destfile="hwx.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="${basePackage}.Aggravation"/>
+				<attribute name="Class-Path" value="."/>
+			</manifest>
+			<fileset dir="${bin.dir}"/>
+			<fileset dir="${src.dir}"/>
+			<fileset dir="." includes="${img.dir}/**"/>
+			<fileset dir="." includes="README.*"/>
+			<fileset dir="." includes="LICENSE"/>
+			<fileset dir="." includes="build.xml"/>
+		</jar>
+	</target>
+	
+		
+</project>
+
