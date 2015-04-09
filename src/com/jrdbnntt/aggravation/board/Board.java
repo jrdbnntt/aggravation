@@ -15,12 +15,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
-import javax.swing.SpringLayout;
 
 import com.jrdbnntt.aggravation.Aggravation;
 import com.jrdbnntt.aggravation.game.Game;
 import com.jrdbnntt.aggravation.game.Player;
-import com.sun.javafx.geom.Shape;
 
 
 @SuppressWarnings("serial")
@@ -86,7 +84,7 @@ public class Board extends JPanel implements ComponentListener {
 	/**
 	 * Calculates geometry of objects on board relative to size
 	 */
-	private void updateBoard() {
+	public void updateBoard() {
 		final double ZONE_RAD_OFFSET = 2*Math.PI / Aggravation.MAX_PLAYERS;
 		final int SPACE_OFFSET_UNITS = 2;
 		final int CENTER_OFFSET_UNITS = SPACE_OFFSET_UNITS*4;
@@ -211,6 +209,7 @@ public class Board extends JPanel implements ComponentListener {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
 		Graphics2D g2d = (Graphics2D) g;
 		Ellipse2D circle;
 		int pos = 0;
@@ -314,9 +313,11 @@ public class Board extends JPanel implements ComponentListener {
 		
 		for(int zone = 0; zone < base.length; ++zone) {
 			for(Space s : base[zone]) {
-				p = Game.getCurrentInstance().getPlayer(zone);
-				if(p != null) {
+				try {
+					p = Game.getCurrentInstance().getPlayer(zone);
 					s.setMarble(new Marble(zone, p.getColor()));
+				} catch(NullPointerException e) {
+					//player not set
 				}
 			}
 		}

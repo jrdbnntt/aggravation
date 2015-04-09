@@ -4,12 +4,10 @@
 
 package com.jrdbnntt.aggravation;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.ItemSelectable;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -31,12 +29,12 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.jrdbnntt.aggravation.board.Board;
-import com.jrdbnntt.aggravation.toolbox.ToolBox;
+import com.jrdbnntt.aggravation.game.Game;
+import com.jrdbnntt.aggravation.game.GameDisplay;
 import com.sun.glass.events.KeyEvent;
 
 @SuppressWarnings("serial")
-public class Aggravation extends JFrame implements ComponentListener, ActionListener {
+public class Aggravation extends JFrame implements ActionListener {
 	//Game constants
 	public static final int MAX_PLAYERS = 6;		//playerNum = index CW from N
 	public static final int MARBLES_PER_PLAYER = 4;
@@ -59,12 +57,11 @@ public class Aggravation extends JFrame implements ComponentListener, ActionList
 	
 	private static final String GAME_TITLE = "Aggravation - by Jared Bennett";
 	
-	private static final double BOARD_WEIGHT_Y = .9;
-	private static final int START_WIDTH = 800;
-	private static final int START_HEIGHT = (int)(Aggravation.START_WIDTH/Aggravation.BOARD_WEIGHT_Y);
 	
-	public static final int MIN_WIDTH = 500;
-	public static final int MIN_HEIGHT = (int)(Aggravation.MIN_WIDTH/Aggravation.BOARD_WEIGHT_Y);
+	//size constraints
+	public static final Dimension
+	MINIMUM_SIZE = GameDisplay.MINIMUM_SIZE,
+	PREFERRED_SIZE = GameDisplay.PREFERRED_SIZE;
 	
 	
 	//Menu bar action commands
@@ -75,17 +72,15 @@ public class Aggravation extends JFrame implements ComponentListener, ActionList
 		AC_GAME_SAVE_AS = "AC_GAME_SAVE_AS",
 		AC_GAME_TITLE = "AC_GAME_TITLE",
 		AC_GAME_EXIT = "AC_GAME_EXIT",
-		
-		AC_VIEW_RULES = "AC_VIEW_RULES"
-		;
+		AC_VIEW_RULES = "AC_VIEW_RULES";
 	
 	
 	
-	private JPanel cont;
+	private JPanel content;		//container for everything
 	private JMenuBar menuBar;
 	
-	private Board board = new Board();
-	private ToolBox toolBox = new ToolBox();
+//	private Board board = new Board();
+//	private ToolBox toolBox = new ToolBox();
 	
 	public static void main(String[] args){
 		Aggravation game;
@@ -106,10 +101,9 @@ public class Aggravation extends JFrame implements ComponentListener, ActionList
 		
 		
 		game = new Aggravation(GAME_TITLE); 
-		game.setSize(START_WIDTH,START_HEIGHT);
-		game.setMinimumSize(new Dimension(
-			MIN_WIDTH, MIN_HEIGHT
-			));
+		game.setSize(Aggravation.PREFERRED_SIZE);
+		game.setMinimumSize(Aggravation.MINIMUM_SIZE);
+		game.setPreferredSize(PREFERRED_SIZE);
 		
 		//display in center
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -127,60 +121,10 @@ public class Aggravation extends JFrame implements ComponentListener, ActionList
 		super(title);
 		
 		this.buildMenuBar();
-		
-		cont = new JPanel(new GridBagLayout());
-		
-		GridBagConstraints gbc = new GridBagConstraints();
-		
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 1.0;
-		gbc.weighty = Aggravation.BOARD_WEIGHT_Y;
-		cont.add(board, gbc);
-		
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.weightx = 1.0;
-		gbc.weighty = 1 - Aggravation.BOARD_WEIGHT_Y;
-		cont.add(toolBox, gbc);
-//		
-//		board.setAlignmentX(Component.CENTER_ALIGNMENT);
-//		board.setMinimumSize(new Dimension(MIN_WIDTH, MIN_WIDTH));
-//		toolBox.setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT-MIN_WIDTH));
-//		
-//		cont.add(board);
-//		cont.add(Box.createVerticalGlue());
-//		cont.add(toolBox);
-//		
-		this.add(cont);
-		
-//		resizeBoard();
-		addComponentListener(this);
+		this.content = new JPanel(new BorderLayout());
+		this.add(content);		
 	}
 	
-	
-	@Override
-	public void paint(Graphics g) {
-		Graphics2D g2d = (Graphics2D) g;
-		
-		// Turn on global graphics options
-		g2d.setRenderingHints(Aggravation.RENDERING_HINTS);
-		
-		super.paint(g2d);
-	}
-	
-	
-	@Override
-	public void componentHidden(ComponentEvent e) {}
-	@Override
-	public void componentMoved(ComponentEvent e) {}
-	@Override
-	public void componentShown(ComponentEvent e) {}
-	@Override
-	public void componentResized(ComponentEvent e) {
-	}
 	
 	/**
 	 * Sets up the menu bar
@@ -273,6 +217,7 @@ public class Aggravation extends JFrame implements ComponentListener, ActionList
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.DESELECTED) {
 					System.out.println("ITEM_EVENT: View->Space Numbers = OFF");
+					//TODO
 				} else {
 					System.out.println("ITEM_EVENT: View->Space Numbers = ON");
 				}
@@ -289,6 +234,35 @@ public class Aggravation extends JFrame implements ComponentListener, ActionList
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		System.out.println("ACTION_EVENT: " + e.getActionCommand());
+		
+		switch(e.getActionCommand()) {
+		case Aggravation.AC_GAME_EXIT:
+			this.setVisible(false);
+			this.dispose();
+			break;
+		case Aggravation.AC_GAME_LOAD:	//TODO
+			
+			break;
+		case Aggravation.AC_GAME_SAVE:	//TODO
+			
+			break;
+		case Aggravation.AC_GAME_SAVE_AS:	//TODO
+			
+			break;
+		case Aggravation.AC_GAME_START:
+			Game.getCurrentInstance().start();
+			this.content.removeAll();
+			this.content.add(Game.getCurrentInstance().getDisplay(), BorderLayout.CENTER);
+			this.pack();
+			Game.getCurrentInstance().getDisplay().refresh();
+			break;
+		case Aggravation.AC_GAME_TITLE:	//TODO
+			
+			break;
+		case Aggravation.AC_VIEW_RULES:	//TODO
+			
+			break;
+		}
 		
 	}
 }

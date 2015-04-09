@@ -15,10 +15,12 @@ public class Game {
 	private Player[] players = new Player[Aggravation.MAX_PLAYERS];
 	private ArrayList<Integer> turnOrder;	//Randomized order of player indexes
 	private int currentPlayer;				//Current index in turnOrder
-	
+	private GameDisplay display = new GameDisplay();
 	
 	public Game() {
-		
+		//initialize with a null set of players
+		for(int i = 0; i < this.players.length; ++i)
+			this.players[i] = null;
 	}
 	
 	public static Game getCurrentInstance() {
@@ -28,6 +30,7 @@ public class Game {
 	
 	public void start() {
 		definePlayers();
+		this.display = new GameDisplay();
 	}
 	
 	public void end() {
@@ -71,10 +74,11 @@ public class Game {
 	
 	/**
 	 * Retrieve player by index
-	 * @param num
+	 * @param i
+	 * @throws NullPointerException when player has not been set
 	 * @return
 	 */
-	public Player getPlayer(int i) {
+	public Player getPlayer(int i) throws NullPointerException {
 		return this.players[i];
 	}
 	
@@ -89,6 +93,10 @@ public class Game {
 		++currentPlayer;
 		if(currentPlayer == turnOrder.size())
 			currentPlayer = 0;
+	}
+	
+	public GameDisplay getDisplay() {
+		return this.display;
 	}
 	
 }
