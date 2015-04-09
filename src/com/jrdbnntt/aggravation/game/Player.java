@@ -10,6 +10,7 @@ public class Player {
 		CURRENT_PLAYER, WAITING, WINNER, LOSER
 	}
 	
+	public static final Player NONE = new Player(new Color(0,0,0,0), "[NONE]");
 	
 	private Color color;	//their color on the board
 	private String name;	//their in-game name put in by the user

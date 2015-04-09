@@ -1,23 +1,41 @@
 /**
  * A space to go on the board.
+ * 
+ * Similar to a component, but not exactly the same, since it is painted off another component.
  */
 package com.jrdbnntt.aggravation.board.space;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 
 import com.jrdbnntt.aggravation.board.Marble;
 
-public abstract class Space {
+abstract public class Space {
 	public static enum Type {
 		HOME, BASE, CENTER, LOOP, CORNER, ENTRANCE
 	}
+	public static enum BorderStatus {
+		BOLD, NORMAL, NONE
+	}
+	
+	public static final Stroke
+		BORDER_BOLD = new BasicStroke(8),
+		BORDER_NORMAL = new BasicStroke(3);
+	
+	public static final Color 
+		BORDER_COLOR_DEFAULT = Color.BLACK,
+		FILL_COLOR_DEFAULT = new Color(117,117,117,100);
+	
 	
 	private static double diameter = 50;
 	public static Color COLOR = new Color(245, 245, 220);
 	
 	private Ellipse2D circle = null;
 	private Marble marble = null;
+	protected BorderStatus borderStatus = Space.BorderStatus.NORMAL;
 	
 	public Space() {
 		this.setLocation(0,0);
@@ -31,7 +49,9 @@ public abstract class Space {
 				Space.diameter);
 	}
 	
-	public abstract Type getType();
+	abstract public Type getType();
+	abstract public void paint(Graphics2D g2d);
+	
 	
 	//statics
 	public static double getDiameter() { return Space.diameter; }
@@ -41,7 +61,6 @@ public abstract class Space {
 	//accessors
 	public Ellipse2D getShape() { return this.circle; }	
 	public Marble getMarble() { return this.marble; }
-//	public Type getType() { return this.type; }
 	
 	
 	public void setMarble(Marble m) {

@@ -29,7 +29,8 @@ import com.jrdbnntt.aggravation.game.Player;
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ComponentListener {
 	//board config
-	private static final Color backgroundColor = Color.BLACK;
+	private static final Color BACKGROUND_COLOR = Color.BLACK;
+	private static final Color BOARD_COLOR = new Color(29, 41, 81);
 	private static final int MIN_SIZE = 500;	//min size of board square
 	
 	
@@ -52,7 +53,7 @@ public class Board extends JPanel implements ComponentListener {
 		super();
 		this.setMinimumSize(new Dimension(Board.MIN_SIZE, Board.MIN_SIZE));
 		
-		this.setBackground(backgroundColor);
+		this.setBackground(BACKGROUND_COLOR);
 		this.addComponentListener(this);
 	}
 	
@@ -219,27 +220,25 @@ public class Board extends JPanel implements ComponentListener {
 		g2d.setRenderingHints(Aggravation.RENDERING_HINTS);
 		
 		//Draw Background
-		g2d.setColor(Color.GRAY);
+		g2d.setColor(Board.BOARD_COLOR);
 		g2d.fill(bg);
 		
 		//Draw Spaces + marbles
 		g2d.setColor(Space.COLOR);
 		
-		circle = center.getShape();
-		g2d.draw(circle);
-		g2d.drawString("C", (float)circle.getX(), (float)circle.getY());
+		center.paint(g2d);
 		if(center.hasMarble()) {
 			//draw the marble
 			c = g2d.getColor();
 			g2d.setColor(center.getMarble().getColor());
-			g2d.fill(circle);
+			g2d.fill(center.getShape());
 			g2d.setColor(c);
 		}
 		
 		for(Space s : loop) {
 			if(s != null) {
 				circle = s.getShape();
-				g2d.draw(circle);
+				s.paint(g2d);
 				g2d.drawString(""+(pos++), (float)circle.getX(), (float)circle.getY());
 									
 				if(s.hasMarble()) {
@@ -257,7 +256,7 @@ public class Board extends JPanel implements ComponentListener {
 			for(Space s : b) {
 				if(s != null) {
 					circle = s.getShape();
-					g2d.draw(circle);
+					s.paint(g2d);
 					g2d.drawString("B"+(pos++), (float)circle.getX(), (float)circle.getY());
 										
 					if(s.hasMarble()) {
@@ -276,7 +275,7 @@ public class Board extends JPanel implements ComponentListener {
 			for(Space s : h) {
 				if(s != null) {
 					circle = s.getShape();
-					g2d.draw(circle);
+					s.paint(g2d);
 					g2d.drawString("H"+(pos++), (float)circle.getX(), (float)circle.getY());
 										
 					if(s.hasMarble()) {
@@ -317,11 +316,20 @@ public class Board extends JPanel implements ComponentListener {
 		for(int i = 0; i < loop.length; ++i)
 			loop[i] = new LoopSpace();
 		for(int zone = 0; zone < base.length; ++zone)
-			for(int i = 0; i < base[zone].length; ++i)
-				base[zone][i] = new BaseSpace();
+			for(int i = 0; i < base[zone].length; ++i) {
+				p = Game.getCurrentInstance().getPlayer(zone);
+				if(p == null)
+					p = Player.NONE;
+				base[zone][i] = new BaseSpace(p);
+			}
+				
 		for(int zone = 0; zone < home.length; ++zone)
-			for(int i = 0; i < home[zone].length; ++i)
-				home[zone][i] = new HomeSpace();
+			for(int i = 0; i < home[zone].length; ++i) {
+				p = Game.getCurrentInstance().getPlayer(zone);
+				if(p == null)
+					p = Player.NONE;
+				home[zone][i] = new HomeSpace(p);
+			}
 		
 		//create space geometry
 		this.update(); 
