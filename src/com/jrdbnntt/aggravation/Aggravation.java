@@ -4,7 +4,6 @@
 
 package com.jrdbnntt.aggravation;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,20 +11,25 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.jrdbnntt.aggravation.board.Board;
 import com.jrdbnntt.aggravation.toolbox.ToolBox;
+import com.sun.glass.events.KeyEvent;
 
 @SuppressWarnings("serial")
 public class Aggravation extends JFrame implements ComponentListener {
@@ -59,12 +63,13 @@ public class Aggravation extends JFrame implements ComponentListener {
 	public static final int MIN_HEIGHT = (int)(Aggravation.MIN_WIDTH/Aggravation.BOARD_WEIGHT_Y);
 	
 	private JPanel cont;
+	private JMenuBar menuBar;
 	
 	private Board board = new Board();
 	private ToolBox toolBox = new ToolBox();
 	
 	public static void main(String[] args){
-		Aggravation game = new Aggravation(GAME_TITLE);
+		Aggravation game;
 		
 		//Use System Theme if possible (looks nice)
 		try {
@@ -81,7 +86,7 @@ public class Aggravation extends JFrame implements ComponentListener {
 		}
 		
 		
-		
+		game = new Aggravation(GAME_TITLE); 
 		game.setSize(START_WIDTH,START_HEIGHT);
 		game.setMinimumSize(new Dimension(
 			MIN_WIDTH, MIN_HEIGHT
@@ -95,13 +100,14 @@ public class Aggravation extends JFrame implements ComponentListener {
 		
 		game.setVisible(true);
 		
-		
 		System.out.println("APPLICATION START");
 		
 	}
 	
 	public Aggravation(String title) {
 		super(title);
+		
+		this.buildMenuBar();
 		
 		cont = new JPanel(new GridBagLayout());
 		
@@ -157,4 +163,83 @@ public class Aggravation extends JFrame implements ComponentListener {
 	public void componentResized(ComponentEvent e) {
 	}
 	
+	/**
+	 * Sets up the menu bar
+	 */
+	private void buildMenuBar() {
+		JMenu menu;
+		JMenuItem menuItem;
+		JCheckBoxMenuItem cbMenuItem;
+		
+		//make bar
+		this.menuBar = new JMenuBar();
+		
+		//make Game menu
+		menu = new JMenu("Game");
+		menu.setMnemonic(KeyEvent.VK_G);
+		menu.getAccessibleContext().setAccessibleDescription("Game management");
+		this.menuBar.add(menu);
+		
+		//add Game options
+		menuItem = new JMenuItem("Start New");
+		menuItem.setMnemonic(KeyEvent.VK_N);
+		menuItem.getAccessibleContext().setAccessibleDescription("Start a new game");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Load game...");
+		menuItem.setMnemonic(KeyEvent.VK_L);
+		menuItem.getAccessibleContext().setAccessibleDescription("Load game from file");
+		menu.add(menuItem);
+		
+		
+		
+		menu.addSeparator();
+		
+		menuItem = new JMenuItem("Save");
+		menuItem.setMnemonic(KeyEvent.VK_S);
+		menuItem.getAccessibleContext().setAccessibleDescription("Save game");
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Save as...");
+		menuItem.setMnemonic(KeyEvent.VK_A);
+		menuItem.getAccessibleContext().setAccessibleDescription("Save game to new file");
+		menu.add(menuItem);
+		
+		menu.addSeparator();
+		menuItem = new JMenuItem("Return to Title");
+		menuItem.setMnemonic(KeyEvent.VK_R);
+		menuItem.getAccessibleContext().setAccessibleDescription("Quit game to title screen");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Exit");
+		menuItem.setMnemonic(KeyEvent.VK_X);
+		menuItem.getAccessibleContext().setAccessibleDescription("Exit program");
+		menu.add(menuItem);
+		
+		
+		//make View menu
+		menu = new JMenu("View");
+		menu.setMnemonic(KeyEvent.VK_V);
+		menu.getAccessibleContext().setAccessibleDescription("Display management");
+		this.menuBar.add(menu);
+		
+		//add View options
+		menuItem = new JMenuItem("Rules...");
+		menuItem.setMnemonic(KeyEvent.VK_R);
+		menuItem.getAccessibleContext().setAccessibleDescription("Display game rules in a new window");
+		menu.add(menuItem);
+		
+		menu.addSeparator();
+		
+		cbMenuItem = new JCheckBoxMenuItem("Space Numbers");
+		cbMenuItem.setMnemonic(KeyEvent.VK_N);
+		cbMenuItem.getAccessibleContext().setAccessibleDescription("Display space numbers next to spaces");
+		menu.add(cbMenuItem);
+		
+		
+		
+		this.setJMenuBar(this.menuBar);
+	}
 }

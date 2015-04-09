@@ -30,8 +30,6 @@ public class Board extends JPanel implements ComponentListener {
 	private static final int MIN_SIZE = 500;	//min size of board square
 	
 	
-	
-	
 	//space offsets
 	private static final int ZONE_OFFSET = 14;	//spaces from corner to corner
 	private static final int START_OFFSET = 9;	//spaces from corner to start
@@ -214,6 +212,7 @@ public class Board extends JPanel implements ComponentListener {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
+		Ellipse2D circle;
 		int pos = 0;
 		Color c;
 		
@@ -223,12 +222,23 @@ public class Board extends JPanel implements ComponentListener {
 		g2d.setColor(Color.GRAY);
 		g2d.fill(bg);
 		
-		//Draw Spaces
+		//Draw Spaces + marbles
 		g2d.setColor(Space.COLOR);
-		g2d.fill(center.getShape());
+		
+		circle = center.getShape();
+		g2d.draw(circle);
+		g2d.drawString("C", (float)circle.getX(), (float)circle.getY());
+		if(center.hasMarble()) {
+			//draw the marble
+			c = g2d.getColor();
+			g2d.setColor(center.getMarble().getColor());
+			g2d.fill(circle);
+			g2d.setColor(c);
+		}
+		
 		for(Space s : loop) {
 			if(s != null) {
-				Ellipse2D circle = s.getShape();
+				circle = s.getShape();
 				g2d.draw(circle);
 				g2d.drawString(""+(pos++), (float)circle.getX(), (float)circle.getY());
 									
@@ -246,9 +256,9 @@ public class Board extends JPanel implements ComponentListener {
 			pos = 0;
 			for(Space s : b) {
 				if(s != null) {
-					Ellipse2D circle = s.getShape();
+					circle = s.getShape();
 					g2d.draw(circle);
-					g2d.drawString(""+(pos++), (float)circle.getX(), (float)circle.getY());
+					g2d.drawString("B"+(pos++), (float)circle.getX(), (float)circle.getY());
 										
 					if(s.hasMarble()) {
 						//draw the marble
@@ -265,9 +275,9 @@ public class Board extends JPanel implements ComponentListener {
 			pos = 0;
 			for(Space s : h) {
 				if(s != null) {
-					Ellipse2D circle = s.getShape();
+					circle = s.getShape();
 					g2d.draw(circle);
-					g2d.drawString(""+(pos++), (float)circle.getX(), (float)circle.getY());
+					g2d.drawString("H"+(pos++), (float)circle.getX(), (float)circle.getY());
 										
 					if(s.hasMarble()) {
 						//draw the marble
