@@ -16,6 +16,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +32,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import com.jrdbnntt.aggravation.game.Game;
 import com.jrdbnntt.aggravation.game.GameDisplay;
-import com.sun.glass.events.KeyEvent;
 
 @SuppressWarnings("serial")
 public class Aggravation extends JFrame implements ActionListener {
@@ -45,13 +45,13 @@ public class Aggravation extends JFrame implements ActionListener {
 		RENDERING_HINTS_MAP = new HashMap<RenderingHints.Key, Object>();
 		RENDERING_HINTS_MAP.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		RENDERING_HINTS_MAP.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_TEXT_LCD_CONTRAST, 100);
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE);
+//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_TEXT_LCD_CONTRAST, 100);
+//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE);
 	}
 	public static final RenderingHints RENDERING_HINTS = new RenderingHints(RENDERING_HINTS_MAP);
 	

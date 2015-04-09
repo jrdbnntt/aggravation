@@ -17,6 +17,11 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.JPanel;
 
 import com.jrdbnntt.aggravation.Aggravation;
+import com.jrdbnntt.aggravation.board.space.BaseSpace;
+import com.jrdbnntt.aggravation.board.space.CenterSpace;
+import com.jrdbnntt.aggravation.board.space.HomeSpace;
+import com.jrdbnntt.aggravation.board.space.LoopSpace;
+import com.jrdbnntt.aggravation.board.space.Space;
 import com.jrdbnntt.aggravation.game.Game;
 import com.jrdbnntt.aggravation.game.Player;
 
@@ -49,9 +54,6 @@ public class Board extends JPanel implements ComponentListener {
 		
 		this.setBackground(backgroundColor);
 		this.addComponentListener(this);
-		updateBoard();
-		initializeBoard();
-		
 	}
 	
 	/**
@@ -84,7 +86,7 @@ public class Board extends JPanel implements ComponentListener {
 	/**
 	 * Calculates geometry of objects on board relative to size
 	 */
-	public void updateBoard() {
+	public void update() {
 		final double ZONE_RAD_OFFSET = 2*Math.PI / Aggravation.MAX_PLAYERS;
 		final int SPACE_OFFSET_UNITS = 2;
 		final int CENTER_OFFSET_UNITS = SPACE_OFFSET_UNITS*4;
@@ -138,7 +140,7 @@ public class Board extends JPanel implements ComponentListener {
 		
 		//make the actual spaces
 		Space.setDiameter(u*1.3);
-		center = new Space(origin.getX(),origin.getY(), (center != null)? center.getMarble() : null);
+		center.setLocation(origin.getX(),origin.getY());
 		for(int zone = 0, pos, curr; zone < Aggravation.MAX_PLAYERS; ++zone) {
 			pos = zone*ZONE_OFFSET;
 			rad = Math.PI/2 - zone*ZONE_RAD_OFFSET;
@@ -147,15 +149,14 @@ public class Board extends JPanel implements ComponentListener {
 			r = CENTER_OFFSET_UNITS*u;
 			x = r*Math.cos(rad);
 			y = r*Math.sin(rad);
-			loop[pos] = new Space(origin.getX()+x,origin.getY()-y, (loop[pos] != null)? loop[pos].getMarble() : null);
-			
+			loop[pos].setLocation(origin.getX()+x,origin.getY()-y);
 			
 			//base
 			for(int i = 0; i < Aggravation.MARBLES_PER_PLAYER; ++i) {
 				r = CENTER_OFFSET_UNITS*u + (BASE_OFFSET_UNITS+SPACE_OFFSET_UNITS*i)*u;
 				x = r*Math.cos(rad);
 				y = r*Math.sin(rad);
-				base[zone][i] = new Space(origin.getX()+x,origin.getY()-y, (base[zone][i] != null)? base[zone][i].getMarble() : null);
+				base[zone][i].setLocation(origin.getX()+x,origin.getY()-y);
 			}
 			
 			//home + loop
@@ -169,40 +170,40 @@ public class Board extends JPanel implements ComponentListener {
 					switch(j) {
 					case 0:
 						curr = pos+1+i;
-						loop[curr] = new Space(zGrid[i][j].getX(),zGrid[i][j].getY(), (loop[curr] != null)? loop[curr].getMarble() : null);
+						loop[curr].setLocation(zGrid[i][j].getX(),zGrid[i][j].getY());
 						break;
 					case 1:
 						if(i == zGrid.length-1) {
 							curr = pos+1 + zGrid.length + j - 1;
-							loop[curr] = new Space(zGrid[i][j].getX(),zGrid[i][j].getY(), (loop[curr] != null)? loop[curr].getMarble() : null);
+							loop[curr].setLocation(zGrid[i][j].getX(),zGrid[i][j].getY());
 						}
 							
 						break;
 					case 2:
 						if(i == zGrid.length-1) {
 							curr = pos+1 + zGrid.length + j - 1;
-							loop[curr] = new Space(zGrid[i][j].getX(),zGrid[i][j].getY(), (loop[curr] != null)? loop[curr].getMarble() : null);
+							loop[curr].setLocation(zGrid[i][j].getX(),zGrid[i][j].getY());
 						} else {
 							curr = home[zone].length - i - 1;
-							home[zone][curr] = new Space(zGrid[i][j].getX(),zGrid[i][j].getY(), (home[zone][curr] != null)? home[zone][curr].getMarble() : null);
+							home[zone][curr].setLocation(zGrid[i][j].getX(),zGrid[i][j].getY());
 						}
 						break;
 					case 3:
 						if(i == zGrid.length-1) {
 							curr = pos+1 + zGrid.length + j - 1;
-							loop[curr] = new Space(zGrid[i][j].getX(),zGrid[i][j].getY(), (loop[curr] != null)? loop[curr].getMarble() : null);
+							loop[curr].setLocation(zGrid[i][j].getX(),zGrid[i][j].getY());
 						}
 						break;
 					case 4:
 						curr = pos+1 + zGrid.length*2 + zGrid[i].length-3 - i;
-						loop[curr] = new Space(zGrid[i][j].getX(),zGrid[i][j].getY(), (loop[curr] != null)? loop[curr].getMarble() : null);
+						loop[curr].setLocation(zGrid[i][j].getX(),zGrid[i][j].getY());
 						break;
 					}
 				}
 			}
 			
-			
 		}
+//		System.out.println("BOARD: update complete");
 	}
 	
 
@@ -301,24 +302,40 @@ public class Board extends JPanel implements ComponentListener {
 	public void componentShown(ComponentEvent e) {}
 	@Override
 	public void componentResized(ComponentEvent e) {
-		updateBoard();
+		update();
 	}
 	
 	
 	/**
 	 * Sets up player marbles in base for all in current game
 	 */
-	private void initializeBoard() {
+	public void init() {
 		Player p;
 		
+		//create all spaces
+		center = new CenterSpace();
+		for(int i = 0; i < loop.length; ++i)
+			loop[i] = new LoopSpace();
+		for(int zone = 0; zone < base.length; ++zone)
+			for(int i = 0; i < base[zone].length; ++i)
+				base[zone][i] = new BaseSpace();
+		for(int zone = 0; zone < home.length; ++zone)
+			for(int i = 0; i < home[zone].length; ++i)
+				home[zone][i] = new HomeSpace();
+		
+		//create space geometry
+		this.update(); 
+		
+		//fill spaces with marbles
 		for(int zone = 0; zone < base.length; ++zone) {
-			for(Space s : base[zone]) {
-				try {
-					p = Game.getCurrentInstance().getPlayer(zone);
+			try {
+				p = Game.getCurrentInstance().getPlayer(zone);
+				System.out.println("BOARD: Player \'"+p.getName()+"\' set for zone "+zone);
+				for(Space s : base[zone])
 					s.setMarble(new Marble(zone, p.getColor()));
-				} catch(NullPointerException e) {
-					//player not set
-				}
+			} catch(NullPointerException e) {
+				//player not set
+				System.out.println("BOARD: Player not set for zone "+zone);
 			}
 		}
 	}

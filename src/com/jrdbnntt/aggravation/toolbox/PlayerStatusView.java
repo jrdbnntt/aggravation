@@ -3,6 +3,7 @@
  */
 package com.jrdbnntt.aggravation.toolbox;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -21,8 +22,13 @@ public class PlayerStatusView extends JPanel {
 		super(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		
+		this.p = p;
+		
 		//create components
 		name = new JLabel(p.getName());
+		name.setForeground(p.getColor());
+		name.setBackground(Color.BLACK);
+		name.setOpaque(true);
 		baseMarbles = new JLabel("# at Base");
 		homeMarbles = new JLabel("# at Home");
 		freeMarbles = new JLabel("# Exposed");
@@ -69,8 +75,10 @@ public class PlayerStatusView extends JPanel {
 	 * Retrieves player data and updates display
 	 */
 	public void update() {
+		System.out.println("PSV: \'"+p.getName()+"\' Update");
 		baseMarbles.setText(p.getBaseMarbles()+" at Base");
 		homeMarbles.setText(p.getHomeMarbles()+" at Home");
 		freeMarbles.setText(p.getFreeMarbles()+" Exposed");
+		status.setText(p.getStatus());
 	}
 }

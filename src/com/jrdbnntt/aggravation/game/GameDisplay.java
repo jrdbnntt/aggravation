@@ -24,8 +24,8 @@ public class GameDisplay extends JPanel {
 				(int)(500/GameDisplay.BOARD_WEIGHT_Y)
 				),
 		PREFERRED_SIZE = new Dimension(
-				1000,
-				(int)(1000/GameDisplay.BOARD_WEIGHT_Y)
+				800,
+				(int)(800/GameDisplay.BOARD_WEIGHT_Y)
 				);
 	
 	
@@ -53,15 +53,27 @@ public class GameDisplay extends JPanel {
 		gbc.weightx = 1.0;
 		gbc.weighty = 1 - GameDisplay.BOARD_WEIGHT_Y;
 		this.add(toolBox, gbc);
+		
+		init();
 	}
-	
 	
 	/**
 	 * Refreshes display content
 	 */
 	public void refresh() {
-		this.board.updateBoard();
+		this.board.update();
+		this.toolBox.update();
 		repaint();
+	}
+	
+	/**
+	 * Initialize game display with starting positions/values
+	 */
+	public void init() {
+		System.out.println("GAME DISPLAY: Initializing...");
+		this.board.init();
+		this.toolBox.init();
+		System.out.println("GAME DISPLAY: Initialization complete.");
 	}
 	
 }
