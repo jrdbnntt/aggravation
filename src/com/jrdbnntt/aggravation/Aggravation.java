@@ -9,11 +9,15 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.ItemSelectable;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +36,7 @@ import com.jrdbnntt.aggravation.toolbox.ToolBox;
 import com.sun.glass.events.KeyEvent;
 
 @SuppressWarnings("serial")
-public class Aggravation extends JFrame implements ComponentListener {
+public class Aggravation extends JFrame implements ComponentListener, ActionListener {
 	//Game constants
 	public static final int MAX_PLAYERS = 6;		//playerNum = index CW from N
 	public static final int MARBLES_PER_PLAYER = 4;
@@ -61,6 +65,21 @@ public class Aggravation extends JFrame implements ComponentListener {
 	
 	public static final int MIN_WIDTH = 500;
 	public static final int MIN_HEIGHT = (int)(Aggravation.MIN_WIDTH/Aggravation.BOARD_WEIGHT_Y);
+	
+	
+	//Menu bar action commands
+	public static final String
+		AC_GAME_START = "AC_GAME_START",
+		AC_GAME_LOAD = "AC_GAME_LOAD",
+		AC_GAME_SAVE = "AC_GAME_SAVE",
+		AC_GAME_SAVE_AS = "AC_GAME_SAVE_AS",
+		AC_GAME_TITLE = "AC_GAME_TITLE",
+		AC_GAME_EXIT = "AC_GAME_EXIT",
+		
+		AC_VIEW_RULES = "AC_VIEW_RULES"
+		;
+	
+	
 	
 	private JPanel cont;
 	private JMenuBar menuBar;
@@ -184,14 +203,16 @@ public class Aggravation extends JFrame implements ComponentListener {
 		menuItem = new JMenuItem("Start New");
 		menuItem.setMnemonic(KeyEvent.VK_N);
 		menuItem.getAccessibleContext().setAccessibleDescription("Start a new game");
+		menuItem.setActionCommand(Aggravation.AC_GAME_START);
+		menuItem.addActionListener(this);
 		menu.add(menuItem);
 		
 		menuItem = new JMenuItem("Load game...");
 		menuItem.setMnemonic(KeyEvent.VK_L);
 		menuItem.getAccessibleContext().setAccessibleDescription("Load game from file");
+		menuItem.setActionCommand(Aggravation.AC_GAME_LOAD);
+		menuItem.addActionListener(this);
 		menu.add(menuItem);
-		
-		
 		
 		menu.addSeparator();
 		
@@ -200,22 +221,30 @@ public class Aggravation extends JFrame implements ComponentListener {
 		menuItem.getAccessibleContext().setAccessibleDescription("Save game");
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+		menuItem.setActionCommand(Aggravation.AC_GAME_SAVE);
+		menuItem.addActionListener(this);
 		menu.add(menuItem);
 		
 		menuItem = new JMenuItem("Save as...");
 		menuItem.setMnemonic(KeyEvent.VK_A);
 		menuItem.getAccessibleContext().setAccessibleDescription("Save game to new file");
+		menuItem.setActionCommand(Aggravation.AC_GAME_SAVE_AS);
+		menuItem.addActionListener(this);
 		menu.add(menuItem);
 		
 		menu.addSeparator();
 		menuItem = new JMenuItem("Return to Title");
 		menuItem.setMnemonic(KeyEvent.VK_R);
 		menuItem.getAccessibleContext().setAccessibleDescription("Quit game to title screen");
+		menuItem.setActionCommand(Aggravation.AC_GAME_TITLE);
+		menuItem.addActionListener(this);
 		menu.add(menuItem);
 		
 		menuItem = new JMenuItem("Exit");
 		menuItem.setMnemonic(KeyEvent.VK_X);
 		menuItem.getAccessibleContext().setAccessibleDescription("Exit program");
+		menuItem.setActionCommand(Aggravation.AC_GAME_EXIT);
+		menuItem.addActionListener(this);
 		menu.add(menuItem);
 		
 		
@@ -229,6 +258,8 @@ public class Aggravation extends JFrame implements ComponentListener {
 		menuItem = new JMenuItem("Rules...");
 		menuItem.setMnemonic(KeyEvent.VK_R);
 		menuItem.getAccessibleContext().setAccessibleDescription("Display game rules in a new window");
+		menuItem.setActionCommand(Aggravation.AC_VIEW_RULES);
+		menuItem.addActionListener(this);
 		menu.add(menuItem);
 		
 		menu.addSeparator();
@@ -236,10 +267,28 @@ public class Aggravation extends JFrame implements ComponentListener {
 		cbMenuItem = new JCheckBoxMenuItem("Space Numbers");
 		cbMenuItem.setMnemonic(KeyEvent.VK_N);
 		cbMenuItem.getAccessibleContext().setAccessibleDescription("Display space numbers next to spaces");
+		cbMenuItem.setSelected(false);
+		cbMenuItem.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.DESELECTED) {
+					System.out.println("ITEM_EVENT: View->Space Numbers = OFF");
+				} else {
+					System.out.println("ITEM_EVENT: View->Space Numbers = ON");
+				}
+			}
+		});
 		menu.add(cbMenuItem);
 		
 		
 		
 		this.setJMenuBar(this.menuBar);
+	}
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		System.out.println("ACTION_EVENT: " + e.getActionCommand());
+		
 	}
 }
