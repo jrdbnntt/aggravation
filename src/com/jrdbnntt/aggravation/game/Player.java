@@ -36,7 +36,8 @@ public class Player {
 	public int getHomeMarbles() { return this.homeMarbles; }
 	public int getBaseMarbles() { return this.baseMarbles; }
 	public int getFreeMarbles() { return this.freeMarbles; }
-	public String getStatus() { 
+	public Player.Status getStatus() { return this.status; }
+	public String getStatusString() { 
 		switch(this.status) {
 		case CURRENT_PLAYER: return "Current Player";
 		case WAITING: return "Waiting";

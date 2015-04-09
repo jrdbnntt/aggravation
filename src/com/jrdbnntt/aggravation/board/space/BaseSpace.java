@@ -40,7 +40,7 @@ public class BaseSpace extends PlayerSpace {
 		case NONE:
 			break;
 		}
-			
+		
 			
 		//reset settings
 		g2d.setColor(prevColor);

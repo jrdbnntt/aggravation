@@ -22,7 +22,7 @@ abstract public class Space {
 	}
 	
 	public static final Stroke
-		BORDER_BOLD = new BasicStroke(8),
+		BORDER_BOLD = new BasicStroke(6),
 		BORDER_NORMAL = new BasicStroke(3);
 	
 	public static final Color 
@@ -33,7 +33,7 @@ abstract public class Space {
 	private static double diameter = 50;
 	public static Color COLOR = new Color(245, 245, 220);
 	
-	private Ellipse2D circle = null;
+	private Ellipse2D.Double circle = null;
 	private Marble marble = null;
 	protected BorderStatus borderStatus = Space.BorderStatus.NORMAL;
 	
@@ -59,13 +59,17 @@ abstract public class Space {
 	
 	
 	//accessors
-	public Ellipse2D getShape() { return this.circle; }	
+	public Ellipse2D.Double getShape() { return this.circle; }	
 	public Marble getMarble() { return this.marble; }
 	
 	
 	public void setMarble(Marble m) {
 		this.marble = m;
 	}
+	public void clearMarble() {
+		this.marble = null;
+	}
+	
 	public boolean hasMarble() {
 		return this.marble != null;
 	}

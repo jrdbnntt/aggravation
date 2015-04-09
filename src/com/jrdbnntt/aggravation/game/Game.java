@@ -78,8 +78,8 @@ public class Game {
 //		this.players[1] = new Player(Color.ORANGE, "Player 2");
 //		this.players[2] = new Player(Color.BLUE, "Player 3");
 		this.players[3] = new Player(Color.WHITE, "Player 4");
-//		this.players[4] = new Player(Color.GREEN, "Player 5");
-		this.players[5] = new Player(Color.YELLOW, "Player 6");
+		this.players[4] = new Player(Color.GREEN, "Player 5");
+//		this.players[5] = new Player(Color.YELLOW, "Player 6");
 		
 		//Create turn order
 		turnOrder = new ArrayList<Integer>();

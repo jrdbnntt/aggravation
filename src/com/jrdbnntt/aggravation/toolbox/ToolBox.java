@@ -18,7 +18,7 @@ import com.jrdbnntt.aggravation.game.Game;
 
 @SuppressWarnings("serial")
 public class ToolBox extends JPanel {
-	private static final Color backgroundColor = Color.WHITE;
+	private static final Color BACKGROUND_COLOR = Color.BLACK;
 	
 	private ArrayList<PlayerStatusView> pViews = new ArrayList<PlayerStatusView>();
 	private JLabel message = new JLabel("");
@@ -27,7 +27,7 @@ public class ToolBox extends JPanel {
 	public ToolBox() {
 		super(new GridBagLayout());
 		
-		this.setBackground(backgroundColor);
+		this.setBackground(BACKGROUND_COLOR);
 	}
 	
 	/**
@@ -56,7 +56,8 @@ public class ToolBox extends JPanel {
 		ArrayList<Integer> turnOrder = Game.getCurrentInstance().getTurnOrder();
 		for(int i = 0; i < turnOrder.size(); ++i) {
 			PlayerStatusView psv = new PlayerStatusView(Game.getCurrentInstance().getPlayer(turnOrder.get(i)));
-			gbc.fill = GridBagConstraints.BOTH;
+			psv.setOpaque(false);
+			gbc.fill = GridBagConstraints.NONE;
 			gbc.gridx = gx++;
 			gbc.gridy = 0;
 			gbc.weightx = 1.0;
