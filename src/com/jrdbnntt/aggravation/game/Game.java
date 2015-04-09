@@ -10,32 +10,47 @@ import java.util.Collections;
 import com.jrdbnntt.aggravation.Aggravation;
 
 public class Game {
-	private static Game currentInstance = new Game();
+	private static enum STATUS {
+		NEW, STARTED, ENDED
+	}
+	
+	private static final Game CURRENT_INSTANCE = new Game();
 	
 	private Player[] players = new Player[Aggravation.MAX_PLAYERS];
-	private ArrayList<Integer> turnOrder;	//Randomized order of player indexes
+	private ArrayList<Integer> turnOrder = new ArrayList<Integer>();	//Randomized order of player indexes
 	private int currentPlayer;				//Current index in turnOrder
-	private GameDisplay display = new GameDisplay();
+	private GameDisplay display;
+	private Game.STATUS currentStatus = Game.STATUS.NEW;
 	
 	public Game() {
-		//initialize with a null set of players
-		for(int i = 0; i < this.players.length; ++i)
-			this.players[i] = null;
+		init();
 	}
 	
 	public static Game getCurrentInstance() {
-		return Game.currentInstance;
+		return Game.CURRENT_INSTANCE;
 	}
 	
+	/**
+	 * Initializes empty game
+	 */
+	public void init() {
+		//initialize with a null set of players
+		for(int i = 0; i < this.players.length; ++i)
+			this.players[i] = null;
+		
+		this.currentStatus = Game.STATUS.NEW;
+	}
 	
 	public void start() {
 		definePlayers();
 		this.display = new GameDisplay();
+		this.currentStatus = Game.STATUS.STARTED;
 	}
 	
 	public void end() {
-		
+		this.currentStatus = Game.STATUS.ENDED;
 	}
+	
 	
 	
 	/**
@@ -80,6 +95,9 @@ public class Game {
 	 */
 	public Player getPlayer(int i) throws NullPointerException {
 		return this.players[i];
+	}
+	public ArrayList<Integer> getTurnOrder() {
+		return this.turnOrder;
 	}
 	
 	public Player getCurrentPlayer() {

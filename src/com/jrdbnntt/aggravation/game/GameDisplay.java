@@ -55,6 +55,7 @@ public class GameDisplay extends JPanel {
 		this.add(toolBox, gbc);
 	}
 	
+	
 	/**
 	 * Refreshes display content
 	 */
