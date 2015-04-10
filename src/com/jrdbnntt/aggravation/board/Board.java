@@ -17,6 +17,7 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.JPanel;
 
 import com.jrdbnntt.aggravation.Aggravation;
+import com.jrdbnntt.aggravation.GameStyle;
 import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.board.space.BaseSpace;
 import com.jrdbnntt.aggravation.board.space.CenterSpace;
@@ -30,7 +31,6 @@ import com.jrdbnntt.aggravation.game.Player;
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ComponentListener {
 	//board config
-	private static final Color BACKGROUND_COLOR = Color.BLACK;
 	private static final Color BOARD_COLOR = new Color(29, 41, 81);
 	private static final int MIN_SIZE = 500;	//min size of board square
 	
@@ -54,7 +54,7 @@ public class Board extends JPanel implements ComponentListener {
 		super();
 		this.setMinimumSize(new Dimension(Board.MIN_SIZE, Board.MIN_SIZE));
 		
-		this.setBackground(BACKGROUND_COLOR);
+		this.setBackground(GameStyle.COLOR_BACKGROUND);
 		this.addComponentListener(this);
 	}
 	
@@ -218,7 +218,8 @@ public class Board extends JPanel implements ComponentListener {
 		int pos = 0;
 		Color c;
 		
-		g2d.setRenderingHints(Aggravation.RENDERING_HINTS);
+		g2d.setRenderingHints(GameStyle.RENDERING_HINTS);
+		g2d.setFont(GameStyle.FONT_SMALL);
 		
 		//Draw Background
 		g2d.setColor(Board.BOARD_COLOR);

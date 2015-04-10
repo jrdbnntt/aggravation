@@ -4,6 +4,7 @@
 
 package com.jrdbnntt.aggravation.game;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,6 +12,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 
 import com.jrdbnntt.aggravation.Aggravation;
+import com.jrdbnntt.aggravation.GameStyle;
 import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.board.Board;
 import com.jrdbnntt.aggravation.toolbox.ToolBox;
@@ -21,8 +23,8 @@ public class GameDisplay extends JPanel {
 	//Size constraints
 	public static final Dimension
 		MINIMUM_SIZE = new Dimension(
-				500,
-				(int)(500/GameDisplay.BOARD_WEIGHT_Y)
+				700,
+				(int)(700/GameDisplay.BOARD_WEIGHT_Y)
 				),
 		PREFERRED_SIZE = new Dimension(
 				800,
@@ -38,6 +40,7 @@ public class GameDisplay extends JPanel {
 		
 		this.setMinimumSize(GameDisplay.MINIMUM_SIZE);
 		this.setPreferredSize(GameDisplay.PREFERRED_SIZE);
+		this.setBackground(GameStyle.COLOR_BACKGROUND);
 		
 		GridBagConstraints gbc = new GridBagConstraints();
 		
@@ -77,4 +80,5 @@ public class GameDisplay extends JPanel {
 		Log.d("GAME DISPLAY","Initialization complete.");
 	}
 	
+	public ToolBox getToolBox() { return this.toolBox; }
 }

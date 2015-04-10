@@ -5,7 +5,9 @@
 package com.jrdbnntt.aggravation;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -31,6 +33,8 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
 
 import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.game.Game;
@@ -41,23 +45,7 @@ public class Aggravation extends JFrame implements ActionListener {
 	//Game constants
 	public static final int MAX_PLAYERS = 6;		//playerNum = index CW from N
 	public static final int MARBLES_PER_PLAYER = 4;
-	
-	//Rendering hints
-	private static final Map<RenderingHints.Key, Object> RENDERING_HINTS_MAP;
-	static {
-		RENDERING_HINTS_MAP = new HashMap<RenderingHints.Key, Object>();
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		RENDERING_HINTS_MAP.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_TEXT_LCD_CONTRAST, 100);
-//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-//		RENDERING_HINTS_MAP.put(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE);
-	}
-	public static final RenderingHints RENDERING_HINTS = new RenderingHints(RENDERING_HINTS_MAP);
-	
+		
 	private static final String GAME_TITLE = "Aggravation - by Jared Bennett";
 	private static final Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
 	
@@ -65,7 +53,6 @@ public class Aggravation extends JFrame implements ActionListener {
 	public static final Dimension
 	MINIMUM_SIZE = GameDisplay.MINIMUM_SIZE,
 	PREFERRED_SIZE = GameDisplay.PREFERRED_SIZE;
-	
 	
 	//Menu bar action commands
 	public static final String
@@ -76,8 +63,6 @@ public class Aggravation extends JFrame implements ActionListener {
 		AC_GAME_TITLE = "AC_GAME_TITLE",
 		AC_GAME_EXIT = "AC_GAME_EXIT",
 		AC_VIEW_RULES = "AC_VIEW_RULES";
-	
-	
 	
 	private JPanel content;		//container for everything
 	private JMenuBar menuBar;
@@ -107,6 +92,7 @@ public class Aggravation extends JFrame implements ActionListener {
 		game.setSize(Aggravation.PREFERRED_SIZE);
 		game.setMinimumSize(Aggravation.MINIMUM_SIZE);
 		game.setPreferredSize(PREFERRED_SIZE);
+		game.getContentPane().setBackground(GameStyle.COLOR_BACKGROUND);
 		
 		//display in center
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -125,6 +111,7 @@ public class Aggravation extends JFrame implements ActionListener {
 		this.buildMenuBar();
 		this.content = new JPanel(new BorderLayout());
 		this.content.setBorder(Aggravation.padding);
+		this.content.setBackground(GameStyle.COLOR_BACKGROUND);
 		this.add(content);
 	}
 	

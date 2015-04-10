@@ -4,26 +4,36 @@
 package com.jrdbnntt.aggravation.game;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
+
+import javax.swing.JButton;
 
 import com.jrdbnntt.aggravation.Aggravation;
 import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.board.space.Space;
 import com.jrdbnntt.aggravation.game.Player.Status;
 
-public class Game {
+public class Game implements ActionListener {
 	private static enum STATUS {
 		NEW, STARTED, ENDED
 	}
+	public static final String
+		AK_ROLL = "AK_ROLL";
 	
 	private static final Game CURRENT_INSTANCE = new Game();
+	private static final int DIE_SIDES = 6;
 	
 	private Player[] players = new Player[Aggravation.MAX_PLAYERS];
 	private ArrayList<Integer> turnOrder = new ArrayList<Integer>();	//Randomized order of player indexes
 	private int currentPlayer;				//Current index in turnOrder
 	private GameDisplay display;
 	private Game.STATUS currentStatus = Game.STATUS.NEW;
+	private int roll = 0;	//current turn role
+	private Random rand = new Random(System.currentTimeMillis());
 	
 	private ArrayList<Space> pSpaces;
 	
@@ -136,14 +146,16 @@ public class Game {
 	 */
 	private void startTurn() {		
 		
-		promptRoll();
+		display.getToolBox().setMessage(
+				this.getCurrentPlayer().getName()
+				+" it is your turn to roll!");
+		display.getToolBox().getRollButton().setEnabled(true);
+		display.getToolBox().getRollButton().addActionListener(this);
+		
 		updatePlayers();
 		display.refresh();
 	}
 	
-	private void promptRoll() {
-		
-	}
 	
 	
 	private void endCurrentTurn() {
@@ -155,6 +167,22 @@ public class Game {
 			++currentPlayer;
 			if(currentPlayer == turnOrder.size())
 				currentPlayer = 0;
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Log.d("GAME-ACTION", e.getActionCommand());
+		switch(e.getActionCommand()) {
+		case Game.AK_ROLL:
+			roll = this.rand.nextInt(Game.DIE_SIDES)+1;
+			display.getToolBox().getRollButton().setEnabled(false);
+			display.getToolBox().setMessage(
+					getCurrentPlayer().getName()
+					+ " rolls " + roll + ".<br>"
+					+ "<br>"
+					);
+			
 		}
 	}
 	

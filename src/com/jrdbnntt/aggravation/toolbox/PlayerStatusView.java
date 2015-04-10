@@ -13,6 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
+import com.jrdbnntt.aggravation.Aggravation;
+import com.jrdbnntt.aggravation.GameStyle;
 import com.jrdbnntt.aggravation.Util.ColorManager;
 import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.game.GameDisplay;
@@ -37,7 +39,7 @@ public class PlayerStatusView extends JPanel {
 	public PlayerStatusView(Player p) {
 		super(new BorderLayout());
 //		GridBagConstraints gbc = new GridBagConstraints();
-		
+		this.setBackground(GameStyle.COLOR_BACKGROUND);
 		this.p = p;
 		//create components
 		name = new JLabel();

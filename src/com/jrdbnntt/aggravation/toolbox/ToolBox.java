@@ -13,21 +13,21 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextPane;
 
+import com.jrdbnntt.aggravation.GameStyle;
 import com.jrdbnntt.aggravation.game.Game;
 
 @SuppressWarnings("serial")
-public class ToolBox extends JPanel {
-	private static final Color BACKGROUND_COLOR = Color.BLACK;
-	
+public class ToolBox extends JPanel {	
 	private ArrayList<PlayerStatusView> pViews = new ArrayList<PlayerStatusView>();
-	private JLabel message = new JLabel("");
+	private JTextPane log = new JTextPane();
 	private JButton bRoll = new JButton("Roll Die");
 	
 	public ToolBox() {
 		super(new GridBagLayout());
 		
-		this.setBackground(BACKGROUND_COLOR);
+		this.setBackground(GameStyle.COLOR_BACKGROUND);
 	}
 	
 	/**
@@ -41,15 +41,21 @@ public class ToolBox extends JPanel {
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = gx;
 		gbc.gridy = 0;
-		gbc.weightx = .1;
-		gbc.weighty = .2;
-		this.add(message, gbc);
+		gbc.weightx = .2;
+		gbc.weighty = 1.0;
+		this.log.setBackground(GameStyle.COLOR_BACKGROUND);
+		this.log.setForeground(GameStyle.COLOR_FONT);
+		this.setMessage("GAME START");
+		this.add(log, gbc);
 		
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = gx++;
 		gbc.gridy = 1;
-		gbc.weightx = .1;
-		gbc.weighty = .8;
+		gbc.weightx = .2;
+		gbc.weighty = .1;
+		this.bRoll.setEnabled(false);
+		this.bRoll.setOpaque(false);
+		this.bRoll.setActionCommand(Game.AK_ROLL);
 		this.add(bRoll, gbc);
 		
 		//list out playerviews
@@ -75,6 +81,17 @@ public class ToolBox extends JPanel {
 	public void update() {
 		for(PlayerStatusView psv: this.pViews)
 			psv.update();
-		
+	}
+	
+	/**
+	 * Sets the text of the message
+	 * @param m
+	 */
+	public void setMessage(String m) {
+		this.log.setText("<html><center>"+m+"</center></html>");
+	}
+	
+	public JButton getRollButton() {
+		return this.bRoll;
 	}
 }
