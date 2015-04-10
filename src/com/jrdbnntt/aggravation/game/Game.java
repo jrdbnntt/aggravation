@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import com.jrdbnntt.aggravation.Aggravation;
+import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.board.space.Space;
 import com.jrdbnntt.aggravation.game.Player.Status;
 
@@ -43,11 +44,11 @@ public class Game {
 			this.players[i] = null;
 		
 		this.currentStatus = Game.STATUS.NEW;
-		System.out.println("GAME: Initialized.");
+		Log.d("GAME","Initialized.");
 	}
 	
 	public void start() {
-		System.out.println("GAME: START");
+		Log.d("GAME","START");
 		definePlayers();
 		this.display = new GameDisplay();
 		this.currentStatus = Game.STATUS.STARTED;
@@ -55,7 +56,7 @@ public class Game {
 	}
 	
 	public void end() {
-		System.out.println("GAME: END");
+		Log.d("GAME","END");
 		this.currentStatus = Game.STATUS.ENDED;
 		
 		//update statuses
@@ -91,10 +92,10 @@ public class Game {
 		
 		currentPlayer = 0;
 		
-		System.out.print("GAME: "+turnOrder.size()+" Players defined with order ");
+		String str = turnOrder.size()+" Players defined with order ";
 		for(int i : turnOrder)
-			System.out.print(i+" ");
-		System.out.println();
+			str+= i+" ";
+		Log.d("GAME", str);
 	}
 	
 	

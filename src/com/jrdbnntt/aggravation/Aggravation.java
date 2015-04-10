@@ -20,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -29,7 +30,9 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.Border;
 
+import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.game.Game;
 import com.jrdbnntt.aggravation.game.GameDisplay;
 
@@ -56,7 +59,7 @@ public class Aggravation extends JFrame implements ActionListener {
 	public static final RenderingHints RENDERING_HINTS = new RenderingHints(RENDERING_HINTS_MAP);
 	
 	private static final String GAME_TITLE = "Aggravation - by Jared Bennett";
-	
+	private static final Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
 	
 	//size constraints
 	public static final Dimension
@@ -113,8 +116,7 @@ public class Aggravation extends JFrame implements ActionListener {
 		
 		game.setVisible(true);
 		
-		System.out.println("APPLICATION START");
-		
+		Log.d("APP", "START");		
 	}
 	
 	public Aggravation(String title) {
@@ -122,7 +124,8 @@ public class Aggravation extends JFrame implements ActionListener {
 		
 		this.buildMenuBar();
 		this.content = new JPanel(new BorderLayout());
-		this.add(content);		
+		this.content.setBorder(Aggravation.padding);
+		this.add(content);
 	}
 	
 	
@@ -216,10 +219,9 @@ public class Aggravation extends JFrame implements ActionListener {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.DESELECTED) {
-					System.out.println("ITEM_EVENT: View->Space Numbers = OFF");
-					//TODO
+					Log.d("ITEM_EVENT","View->Space Numbers = OFF");
 				} else {
-					System.out.println("ITEM_EVENT: View->Space Numbers = ON");
+					Log.d("ITEM_EVENT","View->Space Numbers = ON");
 				}
 			}
 		});
@@ -233,7 +235,7 @@ public class Aggravation extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println("ACTION_EVENT: " + e.getActionCommand());
+		Log.d("ACTION_EVENT", e.getActionCommand());
 		
 		switch(e.getActionCommand()) {
 		case Aggravation.AC_GAME_EXIT:

@@ -32,10 +32,10 @@ public class Util {
 	
 	public static class Log {
 		public static void d(String key, String message) {
-			System.out.printf("[%15s] %s", key, message);
+			System.out.printf("[%-15s] %s\n", key, message);
 		}
 		public static void e(String key, String message) {
-			System.err.printf("[%15s] %s", key, message);
+			System.err.printf("[%-15s] %s\n", key, message);
 		}
 	}
 }

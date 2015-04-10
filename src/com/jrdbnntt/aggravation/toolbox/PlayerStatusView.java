@@ -14,6 +14,7 @@ import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
 import com.jrdbnntt.aggravation.Util.ColorManager;
+import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.game.GameDisplay;
 import com.jrdbnntt.aggravation.game.Player;
 
@@ -51,7 +52,7 @@ public class PlayerStatusView extends JPanel {
 	 * Retrieves player data and updates display
 	 */
 	public void update() {
-		System.out.println("PSV: \'"+p.getName()+"\' Update");
+		Log.d("PSV", "\'"+p.getName()+"\' Update");
 		
 		name.setText(String.format(PlayerStatusView.FORMAT, 
 				ColorManager.getHexString(this.p.getColor()),

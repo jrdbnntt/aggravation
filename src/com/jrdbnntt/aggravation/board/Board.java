@@ -17,6 +17,7 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.JPanel;
 
 import com.jrdbnntt.aggravation.Aggravation;
+import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.board.space.BaseSpace;
 import com.jrdbnntt.aggravation.board.space.CenterSpace;
 import com.jrdbnntt.aggravation.board.space.HomeSpace;
@@ -204,7 +205,7 @@ public class Board extends JPanel implements ComponentListener {
 			}
 			
 		}
-//		System.out.println("BOARD: update complete");
+//		Log.d("BOARD","update complete");
 	}
 	
 
@@ -338,12 +339,12 @@ public class Board extends JPanel implements ComponentListener {
 		for(int zone = 0; zone < base.length; ++zone) {
 			try {
 				p = Game.getCurrentInstance().getPlayer(zone);
-				System.out.println("BOARD: Player \'"+p.getName()+"\' set for zone "+zone);
+				Log.d("BOARD","Player \'"+p.getName()+"\' set for zone "+zone);
 				for(Space s : base[zone])
 					s.setMarble(new Marble(zone, p.getColor()));
 			} catch(NullPointerException e) {
 				//player not set
-				System.out.println("BOARD: Player not set for zone "+zone);
+				Log.d("BOARD","Player not set for zone "+zone);
 			}
 		}
 	}

@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 
 import com.jrdbnntt.aggravation.Aggravation;
+import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.board.Board;
 import com.jrdbnntt.aggravation.toolbox.ToolBox;
 
@@ -70,10 +71,10 @@ public class GameDisplay extends JPanel {
 	 * Initialize game display with starting positions/values
 	 */
 	public void init() {
-		System.out.println("GAME DISPLAY: Initializing...");
+		Log.d("GAME DISPLAY","Initializing...");
 		this.board.init();
 		this.toolBox.init();
-		System.out.println("GAME DISPLAY: Initialization complete.");
+		Log.d("GAME DISPLAY","Initialization complete.");
 	}
 	
 }
