@@ -29,6 +29,9 @@ public class GameStyle {
 		COLOR_SPACE_HIGHLIGHT = Color.BLACK,
 		COLOR_BOARD_BACKGROUND = new Color(29, 41, 81);
 	
+	public final static Color[]
+		DEFAULT_PLAYER_COLORS = {Color.RED, Color.ORANGE, Color.BLUE, Color.WHITE, Color.GREEN, Color.YELLOW};
+	
 	public final static Border
 		BORDER_BASIC = BorderFactory.createLineBorder(COLOR_BORDER, 2,true);
 	

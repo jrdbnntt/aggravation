@@ -72,9 +72,9 @@ public class Game implements ActionListener {
 		Log.v("GAME","Initialized.");
 	}
 	
-	public void start() {
+	public void start(Player[] pSet) {
 		this.setStatus(Game.Status.STARTED);
-		definePlayers();
+		definePlayers(pSet);
 		this.display = new GameDisplay();
 		this.startTurn();
 	}
@@ -94,16 +94,18 @@ public class Game implements ActionListener {
 	/**
 	 * Sets up the players in the game
 	 */
-	private void definePlayers() {
+	private void definePlayers(Player[] pSet) {
 		//prompt for user creation TODO
-		
-		//For now, just make default ones. Null = no player
-		this.players[0] = new Player(0,Color.RED, "Red");
-//		this.players[1] = new Player(1,Color.ORANGE, "Orange");
-//		this.players[2] = new Player(2,Color.BLUE, "Blue");
-		this.players[3] = new Player(3,Color.WHITE, "White");
-		this.players[4] = new Player(4,Color.GREEN, "Green");
-		this.players[5] = new Player(5,Color.YELLOW, "Yellow");
+		for(int i = 0; i < pSet.length; ++i) {
+			this.players[i] = pSet[i];
+		}
+//		//For now, just make default ones. Null = no player
+//		this.players[0] = new Player(0,Color.RED, "Red");
+////		this.players[1] = new Player(1,Color.ORANGE, "Orange");
+////		this.players[2] = new Player(2,Color.BLUE, "Blue");
+//		this.players[3] = new Player(3,Color.WHITE, "White");
+//		this.players[4] = new Player(4,Color.GREEN, "Green");
+//		this.players[5] = new Player(5,Color.YELLOW, "Yellow");
 		
 		//Create turn order
 		turnOrder = new ArrayList<Integer>();
