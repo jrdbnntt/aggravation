@@ -15,11 +15,7 @@ public class Player {
 	private Color color;	//their color on the board
 	private String name;	//their in-game name put in by the user
 	private Status status = Player.Status.WAITING;
-	private int 
-		zone,				//board zone assigned to player
-		homeMarbles = 0,	//number of marbles in home
-		baseMarbles = 0,	//number of marbles in base
-		freeMarbles = 0;	//number of marbles in loop or center
+	private int zone;		//board zone assigned to player
 	
 	public Player(int zone, Color c, String n) {
 		this.zone = zone;
@@ -36,9 +32,6 @@ public class Player {
 	public Color getColor()	{ return this.color; }
 	public String getName()	{ return this.name;	}
 	public int getZone() { return this.zone; }
-	public int getHomeMarbles() { return this.homeMarbles; }
-	public int getBaseMarbles() { return this.baseMarbles; }
-	public int getFreeMarbles() { return this.freeMarbles; }
 	public Player.Status getStatus() { return this.status; }
 	public String getStatusString() { 
 		switch(this.status) {

@@ -82,5 +82,6 @@ public class GameDisplay extends JPanel {
 		Log.d("GAME DISPLAY","Initialization complete.");
 	}
 	
+	public Board getBoard() { return this.board; }
 	public ToolBox getToolBox() { return this.toolBox; }
 }

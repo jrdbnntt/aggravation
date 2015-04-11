@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import com.jrdbnntt.aggravation.Aggravation;
 import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.board.Marble;
+import com.jrdbnntt.aggravation.board.space.HomeSpace;
 import com.jrdbnntt.aggravation.board.space.Space;
 import com.jrdbnntt.aggravation.game.Player.Status;
 
@@ -41,7 +42,7 @@ public class Game implements ActionListener {
 	private Random rand = new Random(System.currentTimeMillis());
 	
 	//Turn vars
-	private ArrayList<Space> possibleEndpoints;		//possible moves from choice
+	private ArrayList<Space> possibleDestinations;		//possible moves from choice
 	private Space selectedSource;					//has the marble
 	private Space selectedDestination;				//has no marble, where it is moved to
 	private boolean marbleMoved;
@@ -176,7 +177,7 @@ public class Game implements ActionListener {
 			this.setStatus(Game.Status.ENDED);
 		} else {
 			//Switch to next player, or stay the same if 6
-			if(roll != 6 && marbleMoved) {
+			if(roll != 6 || !marbleMoved) {
 				++currentPlayer;
 				if(currentPlayer == turnOrder.size())
 					currentPlayer = 0;
@@ -243,11 +244,28 @@ public class Game implements ActionListener {
 			this.setStatus(Game.Status.PROCESSING);
 			this.selectedSource = s;
 			s.setFocus(true);
-			this.findPossibleDestinations();
 			
-			this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
-			display.getToolBox().addLogMessage(this.getCurrentPlayer().getName()+", Please select a space to move the marble.");
-			display.refresh();
+			this.findPossibleDestinations();
+			String str = "Possible Destinations ("+this.possibleDestinations.size()+"): ";
+			for(Space dst : this.possibleDestinations)
+				str += dst.getLabel() + " ";
+			Log.d("GAME", str);
+			
+			if(possibleDestinations.size() == 0) {
+				//player cannot move
+				Log.d("GAME", "Player cannot move, skipping");
+				s.setFocus(false);
+				display.getToolBox().addLogMessage("You cannot move that marble!");
+				display.refresh();
+				
+				this.endCurrentTurn();
+			} else {
+				this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
+				display.getToolBox().addLogMessage(this.getCurrentPlayer().getName()+", Please select a space to move the marble " + roll);
+				display.refresh();
+			}
+			
+			
 			return true;
 		} else {
 			return false;
@@ -282,23 +300,67 @@ public class Game implements ActionListener {
 	 * Finds all the possible moves the player could chose
 	 */
 	private void findPossibleDestinations() {
+		possibleDestinations = new ArrayList<Space>();
 		switch(selectedSource.getType()) {
 		case BASE:
-			
-			break;
-		case HOME:
-			
+			if(roll == 1 || roll == 6) {
+				//can exit base
+				Space start = display.getBoard().getPlayerStart(getCurrentPlayer());
+				if(!start.hasMarble() || start.getMarble().getOwner() != getCurrentPlayer())
+					possibleDestinations.add(start);
+			}
 			break;
 		case CENTER:
 			if(roll == 1) {
-				//any corner
+				//can exit center
+				Space[] corners = display.getBoard().getCorners();
+				for(Space c : corners) {
+					if(!c.hasMarble() || c.getMarble().getOwner() != getCurrentPlayer())
+						possibleDestinations.add(c);
+				}
 			}
 			break;
 		case LOOP:
-			break;
 		case CORNER:
+		case HOME:
+			findPaths(selectedSource, roll);
+		}
+	}
+	private void findPaths(Space src, int moves) {
+		Boolean goodDst;
+		if(moves == 0) {
+			possibleDestinations.add(src);
+		} else {
+			Log.e("PATH", moves+" from "+src.getLabel());
+			Space[] adj = display.getBoard().getNextSpaces(src);
 			
-			break;
+			for(Space s : adj) {
+				//End path if cannot continue
+				if(!s.hasMarble() || s.getMarble().getOwner() != getCurrentPlayer()) {
+					goodDst = true;
+					switch(src.getType()) {
+					case LOOP:
+						goodDst = !((s.getType() == Space.Type.HOME &&
+							((HomeSpace)s).getOwner() != getCurrentPlayer()) || //cannot enter another player's home
+							src == display.getBoard().getPlayerHomeEntrance(getCurrentPlayer())); //must go home if at entrance
+						break;
+					case CENTER:
+						goodDst = moves == roll; //can only move once from center
+						break;
+					case CORNER:
+						goodDst = !((s.getType() == Space.Type.CORNER &&
+								selectedSource.getType() != Space.Type.CORNER) || //have moved along non-corner
+								(src != selectedSource &&
+								selectedSource.getType() == Space.Type.CORNER &&
+								s.getType() != Space.Type.CORNER));	//only moving among corners
+						break;
+					default: break;
+					}
+					
+					if(goodDst)
+						findPaths(s, moves - 1);
+				}
+			}
 		}
 	}
 	

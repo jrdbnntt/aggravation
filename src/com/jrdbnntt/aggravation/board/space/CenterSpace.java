@@ -17,6 +17,10 @@ public class CenterSpace extends Space {
 	public Type getType() {
 		return Space.Type.CENTER;
 	}
+	@Override
+	public String getLabel() {
+		return getType().name();
+	}
 	
 	@Override
 	public void paint(Graphics2D g2d) {

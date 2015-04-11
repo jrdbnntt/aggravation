@@ -316,7 +316,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		center = new CenterSpace();
 		for(int i = 0; i < loop.length; ++i)
 			if(i % ZONE_OFFSET == 0)
-				loop[i] = new CornerSpace(i % ZONE_OFFSET);
+				loop[i] = new CornerSpace(i/ZONE_OFFSET);
 			else 
 				loop[i] = new LoopSpace(i);
 		for(int zone = 0; zone < base.length; ++zone)
@@ -438,13 +438,13 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		
 		if(this.boardContains(p) && this.findSpace(p)) {
 			if(this.foundSpace != this.hoverSpace) {
-				Log.d(KEY, "Entered space " + this.foundSpace.getLabel());
+//				Log.d(KEY, "Entered space " + this.foundSpace.getLabel());
 				this.hoverSpace = this.foundSpace;
 				this.hoverSpace.setHoverHighlight(true);
 				repaint();
 			} 
 		} else if(this.hoverSpace != null) {
-			Log.d(KEY, "Exited space " + this.hoverSpace.getLabel());
+//			Log.d(KEY, "Exited space " + this.hoverSpace.getLabel());
 			this.hoverSpace.setHoverHighlight(false);
 			this.hoverSpace = null;
 			repaint();
@@ -496,6 +496,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		case BASE:
 			adj = new Space[1]; //playerstart
 			adj[0] = loop[((BaseSpace) src).getZone() % ZONE_OFFSET + START_OFFSET];
+			break;
 		case HOME:
 			if(src.getId()+1 < Aggravation.MARBLES_PER_PLAYER) {
 				adj = new Space[1];
@@ -506,13 +507,19 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 			adj = getCorners();
 			break;
 		case LOOP:
-			adj = new Space[1];
+			if(src.getId() % ZONE_OFFSET == (HOME_OFFSET - 1)) {
+				adj = new Space[2];
+				adj[1] = home[src.getId()/ZONE_OFFSET][0];
+			} else {
+				adj = new Space[1];
+			}
+			adj[0] = loop[src.getId()+1];
 			break;
 		case CORNER:
 			adj = new Space[3];
 			adj[0] = center;										//center
-			adj[1] = loop[src.getId()+1];							//down row
-			adj[2] = loop[(src.getId()+ZONE_OFFSET) % loop.length]; //next corner
+			adj[1] = loop[src.getId()*ZONE_OFFSET+1];							//down row
+			adj[2] = loop[(src.getId()*ZONE_OFFSET + ZONE_OFFSET)%loop.length]; //next corner
 			break;
 		default: break;
 		}

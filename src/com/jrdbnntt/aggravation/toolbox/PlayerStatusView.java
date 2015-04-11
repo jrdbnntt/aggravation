@@ -18,6 +18,8 @@ import com.jrdbnntt.aggravation.Aggravation;
 import com.jrdbnntt.aggravation.GameStyle;
 import com.jrdbnntt.aggravation.Util.ColorManager;
 import com.jrdbnntt.aggravation.Util.Log;
+import com.jrdbnntt.aggravation.board.space.Space;
+import com.jrdbnntt.aggravation.game.Game;
 import com.jrdbnntt.aggravation.game.GameDisplay;
 import com.jrdbnntt.aggravation.game.Player;
 
@@ -58,12 +60,20 @@ public class PlayerStatusView extends JPanel {
 	public void updateContent() {
 		Log.d("PSV", "\'"+p.getName()+"\' Update");
 		
+		int inBase=0, inHome=0, free;
+		for(Space s : Game.getCurrentInstance().getDisplay().getBoard().getPlayerBases(p))
+			if(s.hasMarble())
+				++inBase;
+		for(Space s : Game.getCurrentInstance().getDisplay().getBoard().getPlayerHomes(p))
+			if(s.hasMarble())
+				++inHome;
+		free = Aggravation.MARBLES_PER_PLAYER - inBase - inHome;
+		
+		
 		name.setText(String.format(PlayerStatusView.FORMAT, 
 				ColorManager.getHexString(this.p.getColor()),
 				this.p.getName(),
-				this.p.getBaseMarbles(),
-				this.p.getHomeMarbles(),
-				this.p.getFreeMarbles(),
+				inBase,inHome,free,
 				this.p.getStatusString()
 				));
 		
