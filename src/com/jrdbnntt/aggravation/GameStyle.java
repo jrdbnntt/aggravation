@@ -33,7 +33,8 @@ public class GameStyle {
 		BORDER_BASIC = BorderFactory.createLineBorder(COLOR_BORDER, 2,true);
 	
 	public static boolean
-		OPTION_VIEW_SPACE_NUMBERS = false;
+		OPTION_VIEW_SPACE_NUMBERS = false,
+		OPTION_LOG_VERBOSE = false;
 	
 	public static final RenderingHints RENDERING_HINTS;
 	

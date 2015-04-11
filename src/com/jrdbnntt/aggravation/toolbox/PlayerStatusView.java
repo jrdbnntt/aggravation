@@ -58,7 +58,7 @@ public class PlayerStatusView extends JPanel {
 	 * Retrieves player data and updates display
 	 */
 	public void updateContent() {
-		Log.d("PSV", "\'"+p.getName()+"\' Update");
+		Log.v("PSV", "\'"+p.getName()+"\' Update");
 		
 		int inBase=0, inHome=0, free;
 		for(Space s : Game.getCurrentInstance().getDisplay().getBoard().getPlayerBases(p))

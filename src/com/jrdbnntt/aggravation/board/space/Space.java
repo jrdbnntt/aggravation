@@ -76,6 +76,9 @@ abstract public class Space {
 			this.borderStatus = Space.BorderStatus.NORMAL;
 	}
 	
+	@Override
+	public String toString() { return this.getLabel(); }
+	
 	/**
 	 * A smaller version of the circle
 	 */
@@ -100,7 +103,6 @@ abstract public class Space {
 	public int getId() { return this.id; }
 	public boolean hasHoverHighlight() { return this.hoverHighight; }
 	public boolean hasPossibleHighlight() { return this.possibleHighlight; }
-	
 	
 	//mutators
 	public void setMarble(Marble m) { this.marble = m; }

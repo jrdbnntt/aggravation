@@ -99,7 +99,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 	 * Calculates geometry of objects on board relative to size
 	 */
 	public void updateGeometry() {
-		Log.d("BOARD", "Updating geometry...");
+		Log.v("BOARD", "Updating geometry...");
 		final double ZONE_RAD_OFFSET = 2*Math.PI / Aggravation.MAX_PLAYERS;
 		final int SPACE_OFFSET_UNITS = 2;
 		final int CENTER_OFFSET_UNITS = SPACE_OFFSET_UNITS*4;
@@ -216,7 +216,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 			}
 			
 		}
-		Log.d("BOARD", "Geometry update complete.");
+		Log.v("BOARD", "Geometry update complete.");
 		repaint();
 	}
 	
@@ -301,7 +301,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 	public void componentShown(ComponentEvent e) {}
 	@Override
 	public void componentResized(ComponentEvent e) {
-		Log.d("BOARD", "Resized to "+ this.getWidth() + " x " + this.getHeight());
+		Log.v("BOARD", "Resized to "+ this.getWidth() + " x " + this.getHeight());
 		updateGeometry();
 	}
 	
@@ -342,12 +342,12 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		for(int zone = 0; zone < base.length; ++zone) {
 			try {
 				p = Game.getCurrentInstance().getPlayer(zone);
-				Log.d("BOARD","Player \'"+p.getName()+"\' set for zone "+zone);
+				Log.v("BOARD","Player \'"+p.getName()+"\' set for zone "+zone);
 				for(Space s : base[zone])
 					s.setMarble(new Marble(p, p.getColor()));
 			} catch(NullPointerException e) {
 				//player not set
-				Log.d("BOARD","Player not set for zone "+zone);
+				Log.v("BOARD","Player not set for zone "+zone);
 			}
 		}
 	}
@@ -400,7 +400,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		final String KEY = "BOARD-Mouse-Click";
 		Point p = e.getPoint();
 		if(this.boardContains(p)) {
-			Log.d(KEY, "Clicked on board");
+			Log.v(KEY, "Clicked on board");
 			if(this.findSpace(p)) {
 				Log.d(KEY, "Clicked on a space " + this.getFoundSpace().getLabel());
 				Game.getCurrentInstance().onSpaceClicked(this.foundSpace);
@@ -438,13 +438,13 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		
 		if(this.boardContains(p) && this.findSpace(p)) {
 			if(this.foundSpace != this.hoverSpace) {
-//				Log.d(KEY, "Entered space " + this.foundSpace.getLabel());
+				Log.v(KEY, "Entered space " + this.foundSpace.getLabel());
 				this.hoverSpace = this.foundSpace;
 				this.hoverSpace.setHoverHighlight(true);
 				repaint();
 			} 
 		} else if(this.hoverSpace != null) {
-//			Log.d(KEY, "Exited space " + this.hoverSpace.getLabel());
+			Log.v(KEY, "Exited space " + this.hoverSpace.getLabel());
 			this.hoverSpace.setHoverHighlight(false);
 			this.hoverSpace = null;
 			repaint();
@@ -463,20 +463,10 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		return corners;
 	}
 	public Space[] getPlayerHomes(Player p) {
-		Space[] homes = new Space[Aggravation.MARBLES_PER_PLAYER];
-		
-		for(int i = 0; i < Aggravation.MARBLES_PER_PLAYER; ++i)
-			homes[i] = home[p.getZone()][i];
-		
-		return homes;
+		return home[p.getZone()];
 	}
 	public Space[] getPlayerBases(Player p) {
-		Space[] bases = new Space[Aggravation.MARBLES_PER_PLAYER];
-		
-		for(int i = 0; i < Aggravation.MARBLES_PER_PLAYER; ++i)
-			bases[i] = base[p.getZone()][i];
-		
-		return bases;
+		return base[p.getZone()];
 	}
 	public Space getPlayerStart(Player p) {
 		return loop[p.getZone()*ZONE_OFFSET + START_OFFSET];
@@ -484,6 +474,35 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 	public Space getPlayerHomeEntrance(Player p) {
 		return loop[p.getZone()*ZONE_OFFSET + HOME_OFFSET];
 	}
+	public Space[] getPlayerMarbleSpaces(Player p) {
+		Space[] ms = new Space[Aggravation.MARBLES_PER_PLAYER];
+		int zone = p.getZone();
+		int curr = 0;
+		Space s;
+		
+		//check center, base, home, then loop
+		s = center;
+		if(curr < ms.length && s.hasMarble() && s.getMarble().getOwner() == p)
+			ms[curr++] = s;
+		for(int i = 0; i < base[zone].length; ++i){
+			s = base[zone][i];
+			if(s.hasMarble() && s.getMarble().getOwner() == p)
+				ms[curr++] = s;
+		}
+		for(int i = 0; curr < ms.length && i < home[zone].length; ++i){
+			s = home[zone][i];
+			if(s.hasMarble() && s.getMarble().getOwner() == p)
+				ms[curr++] = s;
+		}
+		for(int i = 0; curr < ms.length && i < loop.length; ++i){
+			s = loop[i];
+			if(s.hasMarble() && s.getMarble().getOwner() == p)
+				ms[curr++] = s;
+		}
+		
+		return ms;
+	}
+	
 	
 	/**
 	 * Finds which spaces src is connected to.
@@ -491,16 +510,19 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 	 */
 	public Space[] getNextSpaces(Space src) {
 		Space[] adj = new Space[0];
+		int zone;
 		
 		switch(src.getType()) {
 		case BASE:
+			zone = ((BaseSpace) src).getZone();
 			adj = new Space[1]; //playerstart
-			adj[0] = loop[((BaseSpace) src).getZone() % ZONE_OFFSET + START_OFFSET];
+			adj[0] = loop[zone % ZONE_OFFSET + START_OFFSET];
 			break;
 		case HOME:
-			if(src.getId()+1 < Aggravation.MARBLES_PER_PLAYER) {
+			zone = ((HomeSpace) src).getZone();
+			if(src.getId()+1 < home.length) {
 				adj = new Space[1];
-				adj[0] = home[((HomeSpace) src).getZone()][src.getId()+1];
+				adj[0] = home[zone][src.getId()+1];
 			}
 			break;
 		case CENTER:

@@ -31,6 +31,10 @@ public class Util {
 	}
 	
 	public static class Log {
+		public static void v(String key, String message) {
+			if(GameStyle.OPTION_LOG_VERBOSE)
+				System.out.printf("[BACKGROUND][%-15s] %s\n", key, message);
+		}
 		public static void d(String key, String message) {
 			System.out.printf("[%-15s] %s\n", key, message);
 		}

@@ -76,10 +76,10 @@ public class GameDisplay extends JPanel {
 	 * Initialize game display with starting positions/values
 	 */
 	public void init() {
-		Log.d("GAME DISPLAY","Initializing...");
+		Log.v("GAME DISPLAY","Initializing...");
 		this.board.init();
 		this.toolBox.init();
-		Log.d("GAME DISPLAY","Initialization complete.");
+		Log.v("GAME DISPLAY","Initialization complete.");
 	}
 	
 	public Board getBoard() { return this.board; }

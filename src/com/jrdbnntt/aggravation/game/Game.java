@@ -8,7 +8,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import javax.swing.JButton;
 
@@ -35,14 +38,15 @@ public class Game implements ActionListener {
 	
 	private Player[] players = new Player[Aggravation.MAX_PLAYERS];
 	private ArrayList<Integer> turnOrder = new ArrayList<Integer>();	//Randomized order of player indexes
-	private int currentPlayer;				//Current index in turnOrder
 	private GameDisplay display;
 	private Game.Status currentStatus = Game.Status.NEW;
 	private int roll = 0;	//current turn role
 	private Random rand = new Random(System.currentTimeMillis());
 	
 	//Turn vars
-	private ArrayList<Space> possibleDestinations;		//possible moves from choice
+	private int currPlayerIndex;				//Current index in turnOrder
+	private Player currPlayer;					//Ref to current player
+	private Map<Space,ArrayList<Space>> allPossDst;		//possible moves from choice
 	private Space selectedSource;					//has the marble
 	private Space selectedDestination;				//has no marble, where it is moved to
 	private boolean marbleMoved;
@@ -65,7 +69,7 @@ public class Game implements ActionListener {
 			this.players[i] = null;
 		
 		this.setStatus(Game.Status.NEW);
-		Log.d("GAME","Initialized.");
+		Log.v("GAME","Initialized.");
 	}
 	
 	public void start() {
@@ -76,13 +80,12 @@ public class Game implements ActionListener {
 	}
 	
 	public void end() {
-		Log.d("GAME","END");
 		this.setStatus(Game.Status.ENDED);
 		
 		//update statuses
 		for(int i : turnOrder)
 			players[i].setStatus(Player.Status.LOSER);
-		this.getCurrentPlayer().setStatus(Player.Status.WINNER);
+		currPlayer.setStatus(Player.Status.WINNER);
 		
 	}
 	
@@ -109,12 +112,12 @@ public class Game implements ActionListener {
 		Collections.shuffle(turnOrder);
 		
 		
-		currentPlayer = 0;
+		currPlayerIndex = 0;
 		
 		String str = turnOrder.size()+" Players defined with order ";
 		for(int i : turnOrder)
 			str+= i+" ";
-		Log.d("GAME", str);
+		Log.v("GAME", str);
 	}
 	
 	
@@ -125,7 +128,7 @@ public class Game implements ActionListener {
 		//Reset statuses
 		for(int i : turnOrder)
 			players[i].setStatus(Player.Status.WAITING);
-		this.getCurrentPlayer().setStatus(Player.Status.CURRENT_PLAYER);
+		currPlayer.setStatus(Player.Status.CURRENT_PLAYER);
 	}
 	
 	/**
@@ -142,7 +145,7 @@ public class Game implements ActionListener {
 	}
 	
 	public Player getCurrentPlayer() {
-		return players[turnOrder.get(currentPlayer)];
+		return players[turnOrder.get(currPlayerIndex)];
 	}
 	
 	public GameDisplay getDisplay() {
@@ -154,13 +157,14 @@ public class Game implements ActionListener {
 	 * Handle the current turn
 	 */
 	private void startTurn() {
+		currPlayer = getCurrentPlayer();
 		Log.d("GAME", "New turn started for Player #"
-				+ turnOrder.get(currentPlayer) + ", \'"
-				+ this.getCurrentPlayer().getName()+"\'");
+				+ turnOrder.get(currPlayerIndex) + ", \'"
+				+ currPlayer.getName()+"\'");
 		
 		marbleMoved = false;
 		display.getToolBox().addLogMessage(
-				this.getCurrentPlayer().getName()
+				currPlayer.getName()
 				+" it is your turn to roll!",false);
 		display.getToolBox().getRollButton().setEnabled(true);
 		display.getToolBox().getRollButton().addActionListener(this);
@@ -178,9 +182,9 @@ public class Game implements ActionListener {
 		} else {
 			//Switch to next player, or stay the same if 6
 			if(roll != 6 || !marbleMoved) {
-				++currentPlayer;
-				if(currentPlayer == turnOrder.size())
-					currentPlayer = 0;
+				++currPlayerIndex;
+				if(currPlayerIndex == turnOrder.size())
+					currPlayerIndex = 0;
 			}
 			this.startTurn();
 		}
@@ -188,16 +192,42 @@ public class Game implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Log.d("GAME-ACTION", e.getActionCommand());
+		Log.v("GAME-ACTION", e.getActionCommand());
 		switch(e.getActionCommand()) {
 		case Game.AK_ROLL:
 			display.getToolBox().getRollButton().setEnabled(false);
 			if(this.currentStatus == Game.Status.WAITING_FOR_ROLL) {
 				this.setStatus(Game.Status.PROCESSING);
 				roll = this.rand.nextInt(Game.DIE_SIDES)+1;
-				display.getToolBox().addLogMessage(getCurrentPlayer().getName() + " rolls " + roll,false);
-				display.getToolBox().addLogMessage(getCurrentPlayer().getName() + ", Please select one of your marbles to move "+roll);
-				this.setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
+				display.getToolBox().addLogMessage(currPlayer.getName() + " rolls " + roll,false);
+				Log.d("GAME", "Player "+currPlayer.getName() + " rolled a " + roll);
+				
+				this.findPossibleDestinations();
+				
+				String str = "Possible Destinations ("+allPossDst.size()+"): ";
+				for(Space key : allPossDst.keySet()) {
+					str += key + "[";
+					for(Space dst : allPossDst.get(key))
+						str += dst + " ";
+					str += "] ";
+				}
+				Log.d("GAME", str);
+				
+				if(allPossDst.isEmpty()) {
+					//player cannot move
+					Log.d("GAME", "Player cannot move, skipping");
+					display.getToolBox().addLogMessage(currPlayer.getName()+" cannot move any marbles!");
+					display.refresh();
+					
+					this.endCurrentTurn();
+				} else {
+					this.setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
+					
+					display.getToolBox().addLogMessage(currPlayer.getName() + ", Please select one of your marbles to move "+roll);
+					display.refresh();
+				}
+				
+				
 			}
 			
 		}
@@ -216,18 +246,19 @@ public class Game implements ActionListener {
 		switch(this.currentStatus) {
 		case WAITING_FOR_MARBLE_SELECTION:
 			if(chooseMarbleSource(s)) {
-				Log.d(KEY, this.getCurrentPlayer().getName() + " selected marble at " + s.getLabel());
-				
+				Log.d(KEY, currPlayer.getName() + " selected marble at " + s);
 			}
 			break;
 		case WAITING_FOR_MOVE_CHOICE:
 			if(checkMarbleDestination(s)) {
 				this.setStatus(Game.Status.PROCESSING);
-				Log.d(KEY, this.getCurrentPlayer().getName() + " selected open space at " + s.getLabel());
+				Log.d(KEY, currPlayer.getName() + " selected open space at " + s);
 				this.selectedDestination = s;
 				this.makeMove();
 			} else if(chooseMarbleSource(s)) {
-				Log.d(KEY, this.getCurrentPlayer().getName() + " selected marble at " + s.getLabel());
+				Log.d(KEY, currPlayer.getName() + " selected marble at " + s);
+			} else {
+				Log.d("GAME", "Player " + currPlayer.getName()+ " chose invalid move for marble at "+selectedSource);
 			}
 			break;
 		default:
@@ -240,33 +271,26 @@ public class Game implements ActionListener {
 	 * @return
 	 */
 	private boolean chooseMarbleSource(Space s) {
-		if(s.hasMarble() && s.getMarble().getOwner() == this.getCurrentPlayer()) {
+		if(s.hasMarble() && s.getMarble().getOwner() == currPlayer) {
 			this.setStatus(Game.Status.PROCESSING);
 			this.selectedSource = s;
 			s.setFocus(true);
-			
-			this.findPossibleDestinations();
-			String str = "Possible Destinations ("+this.possibleDestinations.size()+"): ";
-			for(Space dst : this.possibleDestinations)
-				str += dst.getLabel() + " ";
-			Log.d("GAME", str);
-			
-			if(possibleDestinations.size() == 0) {
+
+			if(allPossDst.get(selectedSource) == null) {
 				//player cannot move
-				Log.d("GAME", "Player cannot move, skipping");
+				Log.d("GAME", "Player "+currPlayer.getName()+" selected invalid marble at " + selectedSource);
 				s.setFocus(false);
+				selectedSource = null;
+				setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
 				display.getToolBox().addLogMessage("You cannot move that marble!");
 				display.refresh();
-				
-				this.endCurrentTurn();
+				return false;
 			} else {
 				this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
-				display.getToolBox().addLogMessage(this.getCurrentPlayer().getName()+", Please select a space to move the marble " + roll);
+				display.getToolBox().addLogMessage(currPlayer.getName()+", Please select a space to move the marble " + roll);
 				display.refresh();
+				return true;
 			}
-			
-			
-			return true;
 		} else {
 			return false;
 		}
@@ -277,7 +301,11 @@ public class Game implements ActionListener {
 	 * @return
 	 */
 	private boolean checkMarbleDestination(Space s) {
-		return true;
+		for(Space valid : allPossDst.get(selectedSource))
+			if(s == valid)
+				return true;
+		
+		return false;
 	}
 	
 	/**
@@ -291,7 +319,7 @@ public class Game implements ActionListener {
 		this.selectedSource.setFocus(false);
 		this.selectedDestination.setMarble(m);
 		
-		Log.d("GAME-Move", "Marble moved from "+this.selectedSource.getLabel()+" to "+this.selectedDestination.getLabel());
+		Log.d("GAME-Move", "Marble moved from "+this.selectedSource+" to "+this.selectedDestination);
 		this.marbleMoved = true;
 		this.endCurrentTurn();
 	}
@@ -300,65 +328,69 @@ public class Game implements ActionListener {
 	 * Finds all the possible moves the player could chose
 	 */
 	private void findPossibleDestinations() {
-		possibleDestinations = new ArrayList<Space>();
-		switch(selectedSource.getType()) {
-		case BASE:
-			if(roll == 1 || roll == 6) {
-				//can exit base
-				Space start = display.getBoard().getPlayerStart(getCurrentPlayer());
-				if(!start.hasMarble() || start.getMarble().getOwner() != getCurrentPlayer())
-					possibleDestinations.add(start);
-			}
-			break;
-		case CENTER:
-			if(roll == 1) {
-				//can exit center
-				Space[] corners = display.getBoard().getCorners();
-				for(Space c : corners) {
-					if(!c.hasMarble() || c.getMarble().getOwner() != getCurrentPlayer())
-						possibleDestinations.add(c);
+		allPossDst = new HashMap<Space, ArrayList<Space>>();
+		for(Space initial : display.getBoard().getPlayerMarbleSpaces(currPlayer)) {
+			ArrayList<Space> possDst = new ArrayList<Space>();
+			switch(initial.getType()) {
+			case BASE:
+				if(roll == 1 || roll == 6) {
+					//can exit base
+					Space start = display.getBoard().getPlayerStart(currPlayer);
+					if(!start.hasMarble() || start.getMarble().getOwner() != currPlayer)
+						possDst.add(start);
 				}
+				break;
+			case CENTER:
+				if(roll == 1) {
+					//can exit center
+					Space[] corners = display.getBoard().getCorners();
+					for(Space c : corners) {
+						if(!c.hasMarble() || c.getMarble().getOwner() != currPlayer)
+							possDst.add(c);
+					}
+				}
+				break;
+			case LOOP:
+			case CORNER:
+			case HOME:
+				findPaths(initial, possDst, selectedSource, roll);
 			}
-			break;
-		case LOOP:
-		case CORNER:
-		case HOME:
-			findPaths(selectedSource, roll);
+			if(!possDst.isEmpty())
+				allPossDst.put(initial, possDst);
 		}
 	}
-	private void findPaths(Space src, int moves) {
+	private void findPaths(Space initial, ArrayList<Space> possDst, Space src, int moves) {
 		Boolean goodDst;
 		if(moves == 0) {
-			possibleDestinations.add(src);
+			possDst.add(src);
 		} else {
-			Log.e("PATH", moves+" from "+src.getLabel());
 			Space[] adj = display.getBoard().getNextSpaces(src);
 			
 			for(Space s : adj) {
 				//End path if cannot continue
-				if(!s.hasMarble() || s.getMarble().getOwner() != getCurrentPlayer()) {
+				if(!s.hasMarble() || s.getMarble().getOwner() != currPlayer) {
 					goodDst = true;
 					switch(src.getType()) {
 					case LOOP:
 						goodDst = !((s.getType() == Space.Type.HOME &&
-							((HomeSpace)s).getOwner() != getCurrentPlayer()) || //cannot enter another player's home
-							src == display.getBoard().getPlayerHomeEntrance(getCurrentPlayer())); //must go home if at entrance
+							((HomeSpace)s).getOwner() != currPlayer) || //cannot enter another player's home
+							src == display.getBoard().getPlayerHomeEntrance(currPlayer)); //must go home if at entrance
 						break;
 					case CENTER:
 						goodDst = moves == roll; //can only move once from center
 						break;
 					case CORNER:
 						goodDst = !((s.getType() == Space.Type.CORNER &&
-								selectedSource.getType() != Space.Type.CORNER) || //have moved along non-corner
-								(src != selectedSource &&
-								selectedSource.getType() == Space.Type.CORNER &&
+								initial.getType() != Space.Type.CORNER) || //have moved along non-corner
+								(src != initial &&
+										initial.getType() == Space.Type.CORNER &&
 								s.getType() != Space.Type.CORNER));	//only moving among corners
 						break;
 					default: break;
 					}
 					
 					if(goodDst)
-						findPaths(s, moves - 1);
+						findPaths(initial, possDst,s, moves - 1);
 				}
 			}
 		}

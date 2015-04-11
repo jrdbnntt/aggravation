@@ -226,7 +226,7 @@ public class Aggravation extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Log.d("ACTION_EVENT", e.getActionCommand());
+		Log.v("ACTION_EVENT", e.getActionCommand());
 		
 		switch(e.getActionCommand()) {
 		case Aggravation.AC_GAME_EXIT:
