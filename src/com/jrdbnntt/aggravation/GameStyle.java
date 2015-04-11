@@ -25,12 +25,14 @@ public class GameStyle {
 	public final static Color
 		COLOR_BACKGROUND = Color.BLACK,
 		COLOR_FONT = Color.WHITE,
-		COLOR_BORDER = Color.WHITE;
+		COLOR_BORDER = Color.WHITE,
+		COLOR_SPACE_HIGHLIGHT = Color.BLACK,
+		COLOR_BOARD_BACKGROUND = new Color(29, 41, 81);
 	
 	public final static Border
 		BORDER_BASIC = BorderFactory.createLineBorder(COLOR_BORDER, 2,true);
 	
-	public final static boolean
+	public static boolean
 		OPTION_VIEW_SPACE_NUMBERS = true;
 	
 	public static final RenderingHints RENDERING_HINTS;

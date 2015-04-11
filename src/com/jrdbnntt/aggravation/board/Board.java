@@ -16,6 +16,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
@@ -35,7 +36,6 @@ import com.jrdbnntt.aggravation.game.Player;
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ComponentListener, MouseMotionListener, MouseInputListener {
 	//board config
-	private static final Color BOARD_COLOR = new Color(29, 41, 81);
 	private static final int MIN_SIZE = 500;	//min size of board square
 	
 	
@@ -45,11 +45,13 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 	private static final int HOME_OFFSET = 7;	//spaces from corner to home entrance
 	
 	//Board spaces
-	private Space foundSpace;
 	Space[] loop = new Space[84];	//contains all zones' connected spaces
 	Space center;					//special center space
 	Space[][] home = new Space[Aggravation.MAX_PLAYERS][Aggravation.MARBLES_PER_PLAYER];	//player homes
 	Space[][] base = new Space[Aggravation.MAX_PLAYERS][Aggravation.MARBLES_PER_PLAYER];	//player bases
+	
+	//Mouse space pointers
+	Space foundSpace, hoverSpace;
 	
 	//board components
 	Rectangle2D bg;
@@ -231,7 +233,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		super.paintComponent(g);
 		
 		Graphics2D g2d = (Graphics2D) g;
-		Ellipse2D circle;
+		
 		int pos = 0;
 		Color c;
 		
@@ -239,82 +241,53 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		g2d.setFont(GameStyle.FONT_SMALL);
 		
 		//Draw Background
-		g2d.setColor(Board.BOARD_COLOR);
+		g2d.setColor(GameStyle.COLOR_BOARD_BACKGROUND);
 		g2d.fill(bg);
 		
 		//Draw Spaces + marbles
 		g2d.setColor(Space.COLOR);
 		
-		center.paint(g2d);
-		if(center.hasMarble()) {
-			//draw the marble
-			circle = center.getShape();
-			c = g2d.getColor();
-			if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
-				g2d.drawString(center.getLabel(), (float)circle.getX(), (float)circle.getY());
-			g2d.setColor(center.getMarble().getColor());
-			g2d.fill(circle);
-			g2d.setColor(c);
-		}
-		
-		for(Space s : loop) {
-			if(s != null) {
-				circle = s.getShape();
-				s.paint(g2d);
-				if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
-					g2d.drawString(s.getLabel(), (float)circle.getX(), (float)circle.getY());
-									
-				if(s.hasMarble()) {
-					//draw the marble
-					c = g2d.getColor();
-					g2d.setColor(s.getMarble().getColor());
-					g2d.fill(circle);
-					g2d.setColor(c);
-				}
-				
-			}
-		}
-		for(Space[] b : base) {
-			for(Space s : b) {
-				if(s != null) {
-					circle = s.getShape();
-					s.paint(g2d);
-					if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
-						g2d.drawString(s.getLabel(), (float)circle.getX(), (float)circle.getY());
-										
-					if(s.hasMarble()) {
-						//draw the marble
-						c = g2d.getColor();
-						g2d.setColor(s.getMarble().getColor());
-						g2d.fill(circle);
-						g2d.setColor(c);
-					}
-				
-				}
-			}
-		}
-		for(Space[] h : home) {
-			for(Space s : h) {
-				if(s != null) {
-					circle = s.getShape();
-					s.paint(g2d);
-					if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
-						g2d.drawString(s.getLabel(), (float)circle.getX(), (float)circle.getY());
-					if(s.hasMarble()) {
-						//draw the marble
-						c = g2d.getColor();
-						g2d.setColor(s.getMarble().getColor());
-						g2d.fill(circle);
-						g2d.setColor(c);
-					}
-				}
-			}
-		}
+		paintSpace(g2d,center);
+		for(Space s : loop)
+			paintSpace(g2d,s);
+		for(Space[] b : base)
+			for(Space s : b)
+				if(s != null)
+					paintSpace(g2d,s);
+		for(Space[] h : home)
+			for(Space s : h)
+				paintSpace(g2d,s);
 		
 		
 		
 	}
-
+	
+	private void paintSpace(Graphics2D g2d, Space s) {
+		Color c = g2d.getColor();
+		Ellipse2D circle;
+		
+		if(s != null) {
+			circle = s.getShape();
+			s.paint(g2d);
+			if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
+				g2d.drawString(s.getLabel(), (float)circle.getX(), (float)circle.getY());
+			if(s.hasMarble()) {
+				//draw the marble
+				c = g2d.getColor();
+				g2d.setColor(s.getMarble().getColor());
+				g2d.fill(circle);
+				g2d.setColor(c);
+			}
+			if(this.hoverSpace == s && s.hasHoverHighlight()) {
+				//draw highlight
+				g2d.setColor(GameStyle.COLOR_SPACE_HIGHLIGHT);
+				g2d.fill(s.getHoverShape());
+			}
+		}
+		
+		g2d.setColor(c);
+	}
+	
 	@Override
 	public void componentHidden(ComponentEvent e) {}
 	@Override
@@ -415,23 +388,20 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		final String KEY = "BOARD-Mouse-Click";
 		Point p = e.getPoint();
 		if(this.boardContains(p)) {
-			Log.d("BOARD-Mouse", "Clicked inside");
+			Log.d(KEY, "Clicked on board");
 			if(this.findSpace(p)) {
-				Log.d("BOARD-Mouse", "Clicked on a space " + this.getFoundSpace().getLabel());
+				Log.d(KEY, "Clicked on a space " + this.getFoundSpace().getLabel());
 			}
 		}
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {}
-
 	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseExited(MouseEvent e) {}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -453,7 +423,22 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
+		final String KEY = "BOARD-Mouse-Move";
+		Point p = e.getPoint();
+		
+		if(this.boardContains(p) && this.findSpace(p)) {
+			if(this.foundSpace != this.hoverSpace) {
+				Log.d(KEY, "Entered space " + this.foundSpace.getLabel());
+				this.hoverSpace = this.foundSpace;
+				this.hoverSpace.setHoverHighlight(true);
+				repaint();
+			} 
+		} else if(this.hoverSpace != null) {
+			Log.d(KEY, "Exited space " + this.hoverSpace.getLabel());
+			this.hoverSpace.setHoverHighlight(false);
+			this.hoverSpace = null;
+			repaint();
+		}
 		
 	}
 	

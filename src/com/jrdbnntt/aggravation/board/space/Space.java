@@ -8,6 +8,7 @@ package com.jrdbnntt.aggravation.board.space;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 
@@ -36,6 +37,10 @@ abstract public class Space {
 	private Ellipse2D.Double circle = null;
 	private Marble marble = null;
 	private int id;
+	private boolean
+		hoverHighight = false,		//for on hover
+		possibleHighlight = false;	//for when a possible choice
+		
 	protected BorderStatus borderStatus = Space.BorderStatus.NORMAL;
 	
 	public Space(int id) {
@@ -60,20 +65,51 @@ abstract public class Space {
 	public static void setDiameter(double d) { Space.diameter = d; }
 	
 	
+	//common access calculations
+	public String getLabel() { 
+		return "" + this.getType().name().charAt(0) + this.id;
+	}
+	public void setFocus(boolean b) {
+		if(b)
+			this.borderStatus = Space.BorderStatus.BOLD;
+		else
+			this.borderStatus = Space.BorderStatus.NORMAL;
+	}
+	
+	/**
+	 * A smaller version of the circle
+	 */
+	public Ellipse2D.Double getHoverShape() {
+		double x, y, d;
+		
+		if(circle != null) {
+			d = Space.diameter / 4;
+			x = circle.getCenterX() - d/2;
+			y = circle.getCenterY() - d/2;
+			
+			return new Ellipse2D.Double(x, y, d, d);
+		} else {
+			return new Ellipse2D.Double();
+		}
+	}
+	
+	
 	//accessors
 	public Ellipse2D.Double getShape() { return this.circle; }	
 	public Marble getMarble() { return this.marble; }
 	public int getId() { return this.id; }
-	public String getLabel() { 
-		return "" + this.getType().name().charAt(0) + this.id;
-	}
+	public boolean hasHoverHighlight() { return this.hoverHighight; }
+	public boolean hasPossibleHighlight() { return this.possibleHighlight; }
 	
+	
+	
+	//mutators
+	public void setMarble(Marble m) { this.marble = m; }
+	public void setHoverHighlight(Boolean b) { this.hoverHighight = b; }
+	public void setPossibleHighlight(Boolean b) { this.possibleHighlight = b; }
 	
 	
 	//Marble stuff
-	public void setMarble(Marble m) {
-		this.marble = m;
-	}
 	public void clearMarble() {
 		this.marble = null;
 	}

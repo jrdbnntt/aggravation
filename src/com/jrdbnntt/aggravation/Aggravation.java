@@ -207,8 +207,12 @@ public class Aggravation extends JFrame implements ActionListener {
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.DESELECTED) {
 					Log.d("ITEM_EVENT","View->Space Numbers = OFF");
+					GameStyle.OPTION_VIEW_SPACE_NUMBERS = false;
+					repaint();
 				} else {
 					Log.d("ITEM_EVENT","View->Space Numbers = ON");
+					GameStyle.OPTION_VIEW_SPACE_NUMBERS = true;
+					repaint();
 				}
 			}
 		});
