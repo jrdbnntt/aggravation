@@ -16,7 +16,7 @@ import com.jrdbnntt.aggravation.board.Marble;
 
 abstract public class Space {
 	public static enum Type {
-		HOME, BASE, CENTER, LOOP, CORNER, ENTRANCE
+		HOME, BASE, CENTER, LOOP, CORNER
 	}
 	public static enum BorderStatus {
 		BOLD, NORMAL, NONE

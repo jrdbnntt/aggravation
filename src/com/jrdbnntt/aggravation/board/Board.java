@@ -26,6 +26,7 @@ import com.jrdbnntt.aggravation.GameStyle;
 import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.board.space.BaseSpace;
 import com.jrdbnntt.aggravation.board.space.CenterSpace;
+import com.jrdbnntt.aggravation.board.space.CornerSpace;
 import com.jrdbnntt.aggravation.board.space.HomeSpace;
 import com.jrdbnntt.aggravation.board.space.LoopSpace;
 import com.jrdbnntt.aggravation.board.space.Space;
@@ -314,7 +315,10 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		//create all spaces
 		center = new CenterSpace();
 		for(int i = 0; i < loop.length; ++i)
-			loop[i] = new LoopSpace(i);
+			if(i % ZONE_OFFSET == 0)
+				loop[i] = new CornerSpace(i % ZONE_OFFSET);
+			else 
+				loop[i] = new LoopSpace(i);
 		for(int zone = 0; zone < base.length; ++zone)
 			for(int i = 0; i < base[zone].length; ++i) {
 				p = Game.getCurrentInstance().getPlayer(zone);
@@ -447,5 +451,74 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		}
 		
 	}
+	
+	//Space finders
+	public Space getCenter() { return center; }
+	public Space[] getCorners() {
+		Space corners[] = new Space[Aggravation.MAX_PLAYERS];
+		
+		for(int i = 0; i < Aggravation.MAX_PLAYERS; ++i)
+			corners[i] = loop[ZONE_OFFSET*i];
+		
+		return corners;
+	}
+	public Space[] getPlayerHomes(Player p) {
+		Space[] homes = new Space[Aggravation.MARBLES_PER_PLAYER];
+		
+		for(int i = 0; i < Aggravation.MARBLES_PER_PLAYER; ++i)
+			homes[i] = home[p.getZone()][i];
+		
+		return homes;
+	}
+	public Space[] getPlayerBases(Player p) {
+		Space[] bases = new Space[Aggravation.MARBLES_PER_PLAYER];
+		
+		for(int i = 0; i < Aggravation.MARBLES_PER_PLAYER; ++i)
+			bases[i] = base[p.getZone()][i];
+		
+		return bases;
+	}
+	public Space getPlayerStart(Player p) {
+		return loop[p.getZone()*ZONE_OFFSET + START_OFFSET];
+	}
+	public Space getPlayerHomeEntrance(Player p) {
+		return loop[p.getZone()*ZONE_OFFSET + HOME_OFFSET];
+	}
+	
+	/**
+	 * Finds which spaces src is connected to.
+	 * @return The result spaces, with variable length
+	 */
+	public Space[] getNextSpaces(Space src) {
+		Space[] adj = new Space[0];
+		
+		switch(src.getType()) {
+		case BASE:
+			adj = new Space[1]; //playerstart
+			adj[0] = loop[((BaseSpace) src).getZone() % ZONE_OFFSET + START_OFFSET];
+		case HOME:
+			if(src.getId()+1 < Aggravation.MARBLES_PER_PLAYER) {
+				adj = new Space[1];
+				adj[0] = home[((HomeSpace) src).getZone()][src.getId()+1];
+			}
+			break;
+		case CENTER:
+			adj = getCorners();
+			break;
+		case LOOP:
+			adj = new Space[1];
+			break;
+		case CORNER:
+			adj = new Space[3];
+			adj[0] = center;										//center
+			adj[1] = loop[src.getId()+1];							//down row
+			adj[2] = loop[(src.getId()+ZONE_OFFSET) % loop.length]; //next corner
+			break;
+		default: break;
+		}
+		
+		return adj;
+	}
+	
 	
 }

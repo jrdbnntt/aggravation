@@ -123,7 +123,8 @@ public class ToolBox extends JPanel {
 		if(includeDate) {
 			str += "[" + t.format(new Date()) + "] ";
 		}
-		this.messageLog.setText(str + m);
+//		this.messageLog.setText(str + m);
+		this.messageLog.setText(m);
 	}
 	
 	public JButton getRollButton() {

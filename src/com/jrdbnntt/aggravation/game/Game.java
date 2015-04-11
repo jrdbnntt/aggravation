@@ -93,12 +93,12 @@ public class Game implements ActionListener {
 		//prompt for user creation TODO
 		
 		//For now, just make default ones. Null = no player
-		this.players[0] = new Player(Color.RED, "Player 1");
-//		this.players[1] = new Player(Color.ORANGE, "Player 2");
-//		this.players[2] = new Player(Color.BLUE, "Player 3");
-		this.players[3] = new Player(Color.WHITE, "Player 4");
-		this.players[4] = new Player(Color.GREEN, "Player 5");
-		this.players[5] = new Player(Color.YELLOW, "Player 6");
+		this.players[0] = new Player(0,Color.RED, "Red");
+//		this.players[1] = new Player(1,Color.ORANGE, "Orange");
+//		this.players[2] = new Player(2,Color.BLUE, "Blue");
+		this.players[3] = new Player(3,Color.WHITE, "White");
+		this.players[4] = new Player(4,Color.GREEN, "Green");
+		this.players[5] = new Player(5,Color.YELLOW, "Yellow");
 		
 		//Create turn order
 		turnOrder = new ArrayList<Integer>();
@@ -194,8 +194,8 @@ public class Game implements ActionListener {
 			if(this.currentStatus == Game.Status.WAITING_FOR_ROLL) {
 				this.setStatus(Game.Status.PROCESSING);
 				roll = this.rand.nextInt(Game.DIE_SIDES)+1;
-				display.getToolBox().addLogMessage(getCurrentPlayer().getName() + " rolls " + roll);
-				display.getToolBox().addLogMessage(getCurrentPlayer().getName() + ", Please choose your next move",false);
+				display.getToolBox().addLogMessage(getCurrentPlayer().getName() + " rolls " + roll,false);
+				display.getToolBox().addLogMessage(getCurrentPlayer().getName() + ", Please select one of your marbles to move "+roll);
 				this.setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
 			}
 			
@@ -216,7 +216,7 @@ public class Game implements ActionListener {
 		case WAITING_FOR_MARBLE_SELECTION:
 			if(chooseMarbleSource(s)) {
 				Log.d(KEY, this.getCurrentPlayer().getName() + " selected marble at " + s.getLabel());
-				this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
+				
 			}
 			break;
 		case WAITING_FOR_MOVE_CHOICE:
@@ -240,8 +240,13 @@ public class Game implements ActionListener {
 	 */
 	private boolean chooseMarbleSource(Space s) {
 		if(s.hasMarble() && s.getMarble().getOwner() == this.getCurrentPlayer()) {
+			this.setStatus(Game.Status.PROCESSING);
 			this.selectedSource = s;
 			s.setFocus(true);
+			this.findPossibleDestinations();
+			
+			this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
+			display.getToolBox().addLogMessage(this.getCurrentPlayer().getName()+", Please select a space to move the marble.");
 			display.refresh();
 			return true;
 		} else {
@@ -271,6 +276,30 @@ public class Game implements ActionListener {
 		Log.d("GAME-Move", "Marble moved from "+this.selectedSource.getLabel()+" to "+this.selectedDestination.getLabel());
 		this.marbleMoved = true;
 		this.endCurrentTurn();
+	}
+	
+	/**
+	 * Finds all the possible moves the player could chose
+	 */
+	private void findPossibleDestinations() {
+		switch(selectedSource.getType()) {
+		case BASE:
+			
+			break;
+		case HOME:
+			
+			break;
+		case CENTER:
+			if(roll == 1) {
+				//any corner
+			}
+			break;
+		case LOOP:
+			break;
+		case CORNER:
+			
+			break;
+		}
 	}
 	
 	
