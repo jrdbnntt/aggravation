@@ -68,23 +68,6 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		this.addMouseMotionListener(this);
 	}
 	
-	/**
-	 * Calculates player home entrance position in the loop
-	 * @param playerNum player to check if it is home (CW index)
-	 * @return position of player's home entrance in loop
-	 */
-	public int getPlayerHomeEntrance(int playerNum) {
-		return playerNum * ZONE_OFFSET + HOME_OFFSET;
-	}
-	
-	/**
-	 * Calculates player start position in the loop
-	 * @param playerNum player to check if it is home (CW index)
-	 * @return position of player's start in loop
-	 */
-	public int getPlayerStart(int playerNum) {
-		return playerNum * ZONE_OFFSET + START_OFFSET;
-	}
 	
 	/**
 	 * Checks a loop position to see if it is a corner

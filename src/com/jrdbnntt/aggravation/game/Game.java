@@ -81,12 +81,13 @@ public class Game implements ActionListener {
 	
 	public void end() {
 		this.setStatus(Game.Status.ENDED);
+		display.getToolBox().addLogMessage(currPlayer + " has won!", false);
 		
 		//update statuses
 		for(int i : turnOrder)
 			players[i].setStatus(Player.Status.LOSER);
 		currPlayer.setStatus(Player.Status.WINNER);
-		
+		display.refresh();
 	}
 	
 	
@@ -160,11 +161,11 @@ public class Game implements ActionListener {
 		currPlayer = getCurrentPlayer();
 		Log.d("GAME", "New turn started for Player #"
 				+ turnOrder.get(currPlayerIndex) + ", \'"
-				+ currPlayer.getName()+"\'");
+				+ currPlayer+"\'");
 		
 		marbleMoved = false;
 		display.getToolBox().addLogMessage(
-				currPlayer.getName()
+				currPlayer
 				+" it is your turn to roll!",false);
 		display.getToolBox().getRollButton().setEnabled(true);
 		display.getToolBox().getRollButton().addActionListener(this);
@@ -175,8 +176,14 @@ public class Game implements ActionListener {
 	}
 	
 	private void endCurrentTurn() {
-		//Check for end game  TODO
-		if(false) {
+		boolean gameOver = true;
+		
+		for(Space s : display.getBoard().getPlayerHomes(currPlayer)) {
+			if(!s.hasMarble())
+				gameOver = false;
+		}
+		
+		if(gameOver) {
 			this.end();
 			this.setStatus(Game.Status.ENDED);
 		} else {
@@ -199,8 +206,8 @@ public class Game implements ActionListener {
 			if(this.currentStatus == Game.Status.WAITING_FOR_ROLL) {
 				this.setStatus(Game.Status.PROCESSING);
 				roll = this.rand.nextInt(Game.DIE_SIDES)+1;
-				display.getToolBox().addLogMessage(currPlayer.getName() + " rolls " + roll,false);
-				Log.d("GAME", "Player "+currPlayer.getName() + " rolled a " + roll);
+				display.getToolBox().addLogMessage(currPlayer + " rolls " + roll,false);
+				Log.d("GAME", "Player "+currPlayer + " rolled a " + roll);
 				
 				this.findPossibleDestinations();
 				
@@ -216,14 +223,14 @@ public class Game implements ActionListener {
 				if(allPossDst.isEmpty()) {
 					//player cannot move
 					Log.d("GAME", "Player cannot move, skipping");
-					display.getToolBox().addLogMessage(currPlayer.getName()+" cannot move any marbles!");
+					display.getToolBox().addLogMessage(currPlayer+" cannot move any marbles!");
 					display.refresh();
 					
 					this.endCurrentTurn();
 				} else {
 					this.setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
 					
-					display.getToolBox().addLogMessage(currPlayer.getName() + ", Please select one of your marbles to move "+roll);
+					display.getToolBox().addLogMessage(currPlayer + ", Please select one of your marbles to move "+roll);
 					display.refresh();
 				}
 				
@@ -246,19 +253,19 @@ public class Game implements ActionListener {
 		switch(this.currentStatus) {
 		case WAITING_FOR_MARBLE_SELECTION:
 			if(chooseMarbleSource(s)) {
-				Log.d(KEY, currPlayer.getName() + " selected marble at " + s);
+				Log.d(KEY, currPlayer + " selected marble at " + s);
 			}
 			break;
 		case WAITING_FOR_MOVE_CHOICE:
 			if(checkMarbleDestination(s)) {
 				this.setStatus(Game.Status.PROCESSING);
-				Log.d(KEY, currPlayer.getName() + " selected open space at " + s);
+				Log.d(KEY, currPlayer + " selected open space at " + s);
 				this.selectedDestination = s;
 				this.makeMove();
 			} else if(chooseMarbleSource(s)) {
-				Log.d(KEY, currPlayer.getName() + " selected marble at " + s);
+				Log.d(KEY, currPlayer + " selected marble at " + s);
 			} else {
-				Log.d("GAME", "Player " + currPlayer.getName()+ " chose invalid move for marble at "+selectedSource);
+				Log.d("GAME", "Player " + currPlayer+ " chose invalid move for marble at "+selectedSource);
 			}
 			break;
 		default:
@@ -278,7 +285,7 @@ public class Game implements ActionListener {
 
 			if(allPossDst.get(selectedSource) == null) {
 				//player cannot move
-				Log.d("GAME", "Player "+currPlayer.getName()+" selected invalid marble at " + selectedSource);
+				Log.d("GAME", "Player "+currPlayer+" selected invalid marble at " + selectedSource);
 				s.setFocus(false);
 				selectedSource = null;
 				setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
@@ -287,7 +294,7 @@ public class Game implements ActionListener {
 				return false;
 			} else {
 				this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
-				display.getToolBox().addLogMessage(currPlayer.getName()+", Please select a space to move the marble " + roll);
+				display.getToolBox().addLogMessage(currPlayer+", Please select a space to move the marble " + roll);
 				display.refresh();
 				return true;
 			}
@@ -353,7 +360,7 @@ public class Game implements ActionListener {
 			case LOOP:
 			case CORNER:
 			case HOME:
-				findPaths(initial, possDst, selectedSource, roll);
+				findPaths(initial, possDst, initial, roll);
 			}
 			if(!possDst.isEmpty())
 				allPossDst.put(initial, possDst);
@@ -368,6 +375,7 @@ public class Game implements ActionListener {
 			
 			for(Space s : adj) {
 				//End path if cannot continue
+				Log.e("PATH", ""+src);
 				if(!s.hasMarble() || s.getMarble().getOwner() != currPlayer) {
 					goodDst = true;
 					switch(src.getType()) {
