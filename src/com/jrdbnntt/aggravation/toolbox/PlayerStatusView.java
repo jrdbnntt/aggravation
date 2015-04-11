@@ -5,6 +5,7 @@ package com.jrdbnntt.aggravation.toolbox;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -33,21 +34,21 @@ public class PlayerStatusView extends JPanel {
 			+ "%s"
 			+ "</font></center></html>";
 	
+	private static final Dimension
+		MIN_SIZE = new Dimension(100,150);
+	
 	private Player p;			//reference to player
 	private JLabel name, baseMarbles, freeMarbles, homeMarbles, status;
 	
 	public PlayerStatusView(Player p) {
 		super(new BorderLayout());
-//		GridBagConstraints gbc = new GridBagConstraints();
+		this.setMinimumSize(PlayerStatusView.MIN_SIZE);
 		this.setBackground(GameStyle.COLOR_BACKGROUND);
 		this.p = p;
 		//create components
 		name = new JLabel();
 		name.setBorder(PlayerStatusView.padding);
-		this.add(name, BorderLayout.CENTER);
-		update();
-		
-
+		this.add(name, BorderLayout.CENTER);		
 	}
 	
 	/**

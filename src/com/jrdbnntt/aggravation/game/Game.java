@@ -18,8 +18,12 @@ import com.jrdbnntt.aggravation.board.space.Space;
 import com.jrdbnntt.aggravation.game.Player.Status;
 
 public class Game implements ActionListener {
-	private static enum STATUS {
-		NEW, STARTED, ENDED
+	private static enum Status {
+		NEW, STARTED, ENDED, 
+		WAITING_FOR_ROLL, 
+		WAITING_FOR_MARBLE_SELECTION,
+		WAITING_FOR_MOVE_CHOICE,
+		PROCESSING
 	}
 	public static final String
 		AK_ROLL = "AK_ROLL";
@@ -31,11 +35,12 @@ public class Game implements ActionListener {
 	private ArrayList<Integer> turnOrder = new ArrayList<Integer>();	//Randomized order of player indexes
 	private int currentPlayer;				//Current index in turnOrder
 	private GameDisplay display;
-	private Game.STATUS currentStatus = Game.STATUS.NEW;
+	private Game.Status currentStatus = Game.Status.NEW;
 	private int roll = 0;	//current turn role
 	private Random rand = new Random(System.currentTimeMillis());
 	
-	private ArrayList<Space> pSpaces;
+	private ArrayList<Space> possibleEndpoints;		//possible moves from choice
+	private Space currentChoice;
 	
 	public Game() {
 		init();
@@ -53,26 +58,25 @@ public class Game implements ActionListener {
 		for(int i = 0; i < this.players.length; ++i)
 			this.players[i] = null;
 		
-		this.currentStatus = Game.STATUS.NEW;
+		this.setStatus(Game.Status.NEW);
 		Log.d("GAME","Initialized.");
 	}
 	
 	public void start() {
-		Log.d("GAME","START");
+		this.setStatus(Game.Status.STARTED);
 		definePlayers();
 		this.display = new GameDisplay();
-		this.currentStatus = Game.STATUS.STARTED;
 		this.startTurn();
 	}
 	
 	public void end() {
 		Log.d("GAME","END");
-		this.currentStatus = Game.STATUS.ENDED;
+		this.setStatus(Game.Status.ENDED);
 		
 		//update statuses
 		for(int i : turnOrder)
-			players[i].setStatus(Status.LOSER);
-		this.getCurrentPlayer().setStatus(Status.WINNER);
+			players[i].setStatus(Player.Status.LOSER);
+		this.getCurrentPlayer().setStatus(Player.Status.WINNER);
 		
 	}
 	
@@ -90,7 +94,7 @@ public class Game implements ActionListener {
 //		this.players[2] = new Player(Color.BLUE, "Player 3");
 		this.players[3] = new Player(Color.WHITE, "Player 4");
 		this.players[4] = new Player(Color.GREEN, "Player 5");
-//		this.players[5] = new Player(Color.YELLOW, "Player 6");
+		this.players[5] = new Player(Color.YELLOW, "Player 6");
 		
 		//Create turn order
 		turnOrder = new ArrayList<Integer>();
@@ -115,8 +119,8 @@ public class Game implements ActionListener {
 	public void updatePlayers() {
 		//Reset statuses
 		for(int i : turnOrder)
-			players[i].setStatus(Status.WAITING);
-		this.getCurrentPlayer().setStatus(Status.CURRENT_PLAYER);
+			players[i].setStatus(Player.Status.WAITING);
+		this.getCurrentPlayer().setStatus(Player.Status.CURRENT_PLAYER);
 	}
 	
 	/**
@@ -145,18 +149,16 @@ public class Game implements ActionListener {
 	 * Handle the current turn
 	 */
 	private void startTurn() {		
-		
-		display.getToolBox().setMessage(
+		display.getToolBox().addLogMessage(
 				this.getCurrentPlayer().getName()
-				+" it is your turn to roll!");
+				+" it is your turn to roll!",false);
 		display.getToolBox().getRollButton().setEnabled(true);
 		display.getToolBox().getRollButton().addActionListener(this);
-		
 		updatePlayers();
+		
+		this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
 		display.refresh();
 	}
-	
-	
 	
 	private void endCurrentTurn() {
 		//Check for end game  TODO
@@ -177,13 +179,16 @@ public class Game implements ActionListener {
 		case Game.AK_ROLL:
 			roll = this.rand.nextInt(Game.DIE_SIDES)+1;
 			display.getToolBox().getRollButton().setEnabled(false);
-			display.getToolBox().setMessage(
-					getCurrentPlayer().getName()
-					+ " rolls " + roll + ".<br>"
-					+ "<br>"
-					);
-			
+			display.getToolBox().addLogMessage(getCurrentPlayer().getName() + " rolls " + roll);
+			display.getToolBox().addLogMessage(getCurrentPlayer().getName() + ", Please choose your next move",false);
+			this.setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
 		}
 	}
+	
+	private void setStatus(Status s) {
+		Log.d("GAME-Status Change",s.name());
+		this.currentStatus = s;
+	}
+	
 	
 }

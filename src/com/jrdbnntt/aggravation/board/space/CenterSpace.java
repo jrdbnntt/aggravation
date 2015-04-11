@@ -10,7 +10,7 @@ public class CenterSpace extends Space {
 		FILL_COLOR = Space.FILL_COLOR_DEFAULT;
 	
 	public CenterSpace() {
-		super();
+		super(0);
 	}
 	
 	@Override

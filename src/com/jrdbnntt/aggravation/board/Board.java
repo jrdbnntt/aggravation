@@ -7,14 +7,18 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputListener;
 
 import com.jrdbnntt.aggravation.Aggravation;
 import com.jrdbnntt.aggravation.GameStyle;
@@ -29,7 +33,7 @@ import com.jrdbnntt.aggravation.game.Player;
 
 
 @SuppressWarnings("serial")
-public class Board extends JPanel implements ComponentListener {
+public class Board extends JPanel implements ComponentListener, MouseMotionListener, MouseInputListener {
 	//board config
 	private static final Color BOARD_COLOR = new Color(29, 41, 81);
 	private static final int MIN_SIZE = 500;	//min size of board square
@@ -41,6 +45,7 @@ public class Board extends JPanel implements ComponentListener {
 	private static final int HOME_OFFSET = 7;	//spaces from corner to home entrance
 	
 	//Board spaces
+	private Space foundSpace;
 	Space[] loop = new Space[84];	//contains all zones' connected spaces
 	Space center;					//special center space
 	Space[][] home = new Space[Aggravation.MAX_PLAYERS][Aggravation.MARBLES_PER_PLAYER];	//player homes
@@ -56,6 +61,8 @@ public class Board extends JPanel implements ComponentListener {
 		
 		this.setBackground(GameStyle.COLOR_BACKGROUND);
 		this.addComponentListener(this);
+		this.addMouseListener(this);
+		this.addMouseMotionListener(this);
 	}
 	
 	/**
@@ -89,6 +96,15 @@ public class Board extends JPanel implements ComponentListener {
 	 * Calculates geometry of objects on board relative to size
 	 */
 	public void update() {
+		Thread t = new Thread(){
+			@Override
+			public void run() {
+				updateSync();
+			}
+		};
+		t.start();
+	}
+	public void updateSync() {
 		final double ZONE_RAD_OFFSET = 2*Math.PI / Aggravation.MAX_PLAYERS;
 		final int SPACE_OFFSET_UNITS = 2;
 		final int CENTER_OFFSET_UNITS = SPACE_OFFSET_UNITS*4;
@@ -206,6 +222,7 @@ public class Board extends JPanel implements ComponentListener {
 			
 		}
 //		Log.d("BOARD","update complete");
+		repaint();
 	}
 	
 
@@ -231,9 +248,12 @@ public class Board extends JPanel implements ComponentListener {
 		center.paint(g2d);
 		if(center.hasMarble()) {
 			//draw the marble
+			circle = center.getShape();
 			c = g2d.getColor();
+			if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
+				g2d.drawString(center.getLabel(), (float)circle.getX(), (float)circle.getY());
 			g2d.setColor(center.getMarble().getColor());
-			g2d.fill(center.getShape());
+			g2d.fill(circle);
 			g2d.setColor(c);
 		}
 		
@@ -241,7 +261,8 @@ public class Board extends JPanel implements ComponentListener {
 			if(s != null) {
 				circle = s.getShape();
 				s.paint(g2d);
-				g2d.drawString(""+(pos++), (float)circle.getX(), (float)circle.getY());
+				if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
+					g2d.drawString(s.getLabel(), (float)circle.getX(), (float)circle.getY());
 									
 				if(s.hasMarble()) {
 					//draw the marble
@@ -254,12 +275,12 @@ public class Board extends JPanel implements ComponentListener {
 			}
 		}
 		for(Space[] b : base) {
-			pos = 0;
 			for(Space s : b) {
 				if(s != null) {
 					circle = s.getShape();
 					s.paint(g2d);
-					g2d.drawString("B"+(pos++), (float)circle.getX(), (float)circle.getY());
+					if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
+						g2d.drawString(s.getLabel(), (float)circle.getX(), (float)circle.getY());
 										
 					if(s.hasMarble()) {
 						//draw the marble
@@ -273,13 +294,12 @@ public class Board extends JPanel implements ComponentListener {
 			}
 		}
 		for(Space[] h : home) {
-			pos = 0;
 			for(Space s : h) {
 				if(s != null) {
 					circle = s.getShape();
 					s.paint(g2d);
-					g2d.drawString("H"+(pos++), (float)circle.getX(), (float)circle.getY());
-										
+					if(GameStyle.OPTION_VIEW_SPACE_NUMBERS)
+						g2d.drawString(s.getLabel(), (float)circle.getX(), (float)circle.getY());
 					if(s.hasMarble()) {
 						//draw the marble
 						c = g2d.getColor();
@@ -316,13 +336,13 @@ public class Board extends JPanel implements ComponentListener {
 		//create all spaces
 		center = new CenterSpace();
 		for(int i = 0; i < loop.length; ++i)
-			loop[i] = new LoopSpace();
+			loop[i] = new LoopSpace(i);
 		for(int zone = 0; zone < base.length; ++zone)
 			for(int i = 0; i < base[zone].length; ++i) {
 				p = Game.getCurrentInstance().getPlayer(zone);
 				if(p == null)
 					p = Player.NONE;
-				base[zone][i] = new BaseSpace(p);
+				base[zone][i] = new BaseSpace(zone, i, p);
 			}
 				
 		for(int zone = 0; zone < home.length; ++zone)
@@ -330,7 +350,7 @@ public class Board extends JPanel implements ComponentListener {
 				p = Game.getCurrentInstance().getPlayer(zone);
 				if(p == null)
 					p = Player.NONE;
-				home[zone][i] = new HomeSpace(p);
+				home[zone][i] = new HomeSpace(zone, i, p);
 			}
 		
 		//create space geometry
@@ -349,4 +369,92 @@ public class Board extends JPanel implements ComponentListener {
 			}
 		}
 	}
+	
+	private boolean boardContains(Point p) {
+		if(bg != null) {
+			return bg.contains(p);
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Finds a space and returns t/f. Space found gets stored,
+	 * and must be retrieved in a later function
+	 * @param p point to check
+	 * @return found : not found
+	 */
+	private boolean findSpace(Point p) {
+		//Check all space geometry
+		if(center.getShape().contains(p)) {
+			this.foundSpace = center;
+			return true;
+		}
+		
+		for(Space[] zone : base)
+			for(Space s : zone)
+				if(s.getShape().contains(p)) {
+					this.foundSpace = s;
+					return true;
+				}
+		for(Space[] zone : home)
+			for(Space s : zone)
+				if(s.getShape().contains(p)) {
+					this.foundSpace = s;
+					return true;
+				}
+		for(Space s : loop)
+			if(s.getShape().contains(p)) {
+				this.foundSpace = s;
+				return true;
+			}
+		return false;
+	}
+	
+	private Space getFoundSpace() { return this.foundSpace; }
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		Point p = e.getPoint();
+		if(this.boardContains(p)) {
+			Log.d("BOARD-Mouse", "Clicked inside");
+			if(this.findSpace(p)) {
+				Log.d("BOARD-Mouse", "Clicked on a space " + this.getFoundSpace().getLabel());
+			}
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

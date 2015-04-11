@@ -8,8 +8,8 @@ import com.jrdbnntt.aggravation.game.Player;
 
 public class HomeSpace extends PlayerSpace {
 	
-	public HomeSpace(Player p) {
-		super(p);
+	public HomeSpace(int zone, int id, Player p) {
+		super(zone,id,p);
 	}
 	
 	@Override

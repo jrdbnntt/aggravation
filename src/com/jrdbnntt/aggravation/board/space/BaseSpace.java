@@ -8,8 +8,8 @@ import com.jrdbnntt.aggravation.game.Player;
 
 public class BaseSpace extends PlayerSpace {
 	
-	public BaseSpace(Player p) {
-		super(p);
+	public BaseSpace(int zone, int id, Player p) {
+		super(zone, id, p);
 	}
 	
 	@Override

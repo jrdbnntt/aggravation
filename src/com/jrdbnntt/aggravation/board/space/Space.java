@@ -35,9 +35,11 @@ abstract public class Space {
 	
 	private Ellipse2D.Double circle = null;
 	private Marble marble = null;
+	private int id;
 	protected BorderStatus borderStatus = Space.BorderStatus.NORMAL;
 	
-	public Space() {
+	public Space(int id) {
+		this.id = id;
 		this.setLocation(0,0);
 	}
 	
@@ -61,15 +63,20 @@ abstract public class Space {
 	//accessors
 	public Ellipse2D.Double getShape() { return this.circle; }	
 	public Marble getMarble() { return this.marble; }
+	public int getId() { return this.id; }
+	public String getLabel() { 
+		return "" + this.getType().name().charAt(0) + this.id;
+	}
 	
 	
+	
+	//Marble stuff
 	public void setMarble(Marble m) {
 		this.marble = m;
 	}
 	public void clearMarble() {
 		this.marble = null;
 	}
-	
 	public boolean hasMarble() {
 		return this.marble != null;
 	}

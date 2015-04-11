@@ -9,6 +9,9 @@ public class LoopSpace extends Space {
 		BORDER_COLOR = Space.BORDER_COLOR_DEFAULT,
 		FILL_COLOR = Space.FILL_COLOR_DEFAULT;
 	
+	public LoopSpace(int id) {
+		super(id);
+	}
 	
 	@Override
 	public Type getType() {

@@ -252,6 +252,5 @@ public class Aggravation extends JFrame implements ActionListener {
 			
 			break;
 		}
-		
 	}
 }
