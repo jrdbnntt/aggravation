@@ -14,11 +14,12 @@ import javax.swing.JButton;
 
 import com.jrdbnntt.aggravation.Aggravation;
 import com.jrdbnntt.aggravation.Util.Log;
+import com.jrdbnntt.aggravation.board.Marble;
 import com.jrdbnntt.aggravation.board.space.Space;
 import com.jrdbnntt.aggravation.game.Player.Status;
 
 public class Game implements ActionListener {
-	private static enum Status {
+	public static enum Status {
 		NEW, STARTED, ENDED, 
 		WAITING_FOR_ROLL, 
 		WAITING_FOR_MARBLE_SELECTION,
@@ -39,8 +40,12 @@ public class Game implements ActionListener {
 	private int roll = 0;	//current turn role
 	private Random rand = new Random(System.currentTimeMillis());
 	
+	//Turn vars
 	private ArrayList<Space> possibleEndpoints;		//possible moves from choice
-	private Space currentChoice;
+	private Space selectedSource;					//has the marble
+	private Space selectedDestination;				//has no marble, where it is moved to
+	private boolean marbleMoved;
+	
 	
 	public Game() {
 		init();
@@ -79,7 +84,6 @@ public class Game implements ActionListener {
 		this.getCurrentPlayer().setStatus(Player.Status.WINNER);
 		
 	}
-	
 	
 	
 	/**
@@ -148,7 +152,12 @@ public class Game implements ActionListener {
 	/**
 	 * Handle the current turn
 	 */
-	private void startTurn() {		
+	private void startTurn() {
+		Log.d("GAME", "New turn started for Player #"
+				+ turnOrder.get(currentPlayer) + ", \'"
+				+ this.getCurrentPlayer().getName()+"\'");
+		
+		marbleMoved = false;
 		display.getToolBox().addLogMessage(
 				this.getCurrentPlayer().getName()
 				+" it is your turn to roll!",false);
@@ -156,19 +165,23 @@ public class Game implements ActionListener {
 		display.getToolBox().getRollButton().addActionListener(this);
 		updatePlayers();
 		
-		this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
+		this.setStatus(Game.Status.WAITING_FOR_ROLL);
 		display.refresh();
 	}
 	
 	private void endCurrentTurn() {
 		//Check for end game  TODO
-		if(true) {
+		if(false) {
 			this.end();
+			this.setStatus(Game.Status.ENDED);
 		} else {
-			//Set to next player in order (rotating back to start)
-			++currentPlayer;
-			if(currentPlayer == turnOrder.size())
-				currentPlayer = 0;
+			//Switch to next player, or stay the same if 6
+			if(roll != 6 && marbleMoved) {
+				++currentPlayer;
+				if(currentPlayer == turnOrder.size())
+					currentPlayer = 0;
+			}
+			this.startTurn();
 		}
 	}
 
@@ -177,17 +190,87 @@ public class Game implements ActionListener {
 		Log.d("GAME-ACTION", e.getActionCommand());
 		switch(e.getActionCommand()) {
 		case Game.AK_ROLL:
-			roll = this.rand.nextInt(Game.DIE_SIDES)+1;
 			display.getToolBox().getRollButton().setEnabled(false);
-			display.getToolBox().addLogMessage(getCurrentPlayer().getName() + " rolls " + roll);
-			display.getToolBox().addLogMessage(getCurrentPlayer().getName() + ", Please choose your next move",false);
-			this.setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
+			if(this.currentStatus == Game.Status.WAITING_FOR_ROLL) {
+				this.setStatus(Game.Status.PROCESSING);
+				roll = this.rand.nextInt(Game.DIE_SIDES)+1;
+				display.getToolBox().addLogMessage(getCurrentPlayer().getName() + " rolls " + roll);
+				display.getToolBox().addLogMessage(getCurrentPlayer().getName() + ", Please choose your next move",false);
+				this.setStatus(Game.Status.WAITING_FOR_MARBLE_SELECTION);
+			}
+			
 		}
 	}
 	
 	private void setStatus(Status s) {
 		Log.d("GAME-Status Change",s.name());
 		this.currentStatus = s;
+	}
+	public Game.Status getStatus() {
+		return this.currentStatus;
+	}
+	
+	public void onSpaceClicked(Space s) {
+		final String KEY = "GAME-SpaceSelect";
+		switch(this.currentStatus) {
+		case WAITING_FOR_MARBLE_SELECTION:
+			if(chooseMarbleSource(s)) {
+				Log.d(KEY, this.getCurrentPlayer().getName() + " selected marble at " + s.getLabel());
+				this.setStatus(Game.Status.WAITING_FOR_MOVE_CHOICE);
+			}
+			break;
+		case WAITING_FOR_MOVE_CHOICE:
+			if(checkMarbleDestination(s)) {
+				this.setStatus(Game.Status.PROCESSING);
+				Log.d(KEY, this.getCurrentPlayer().getName() + " selected open space at " + s.getLabel());
+				this.selectedDestination = s;
+				this.makeMove();
+			} else if(chooseMarbleSource(s)) {
+				Log.d(KEY, this.getCurrentPlayer().getName() + " selected marble at " + s.getLabel());
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/**
+	 * Checks to see if the current player can move this marble, then does so if is valid.
+	 * @return
+	 */
+	private boolean chooseMarbleSource(Space s) {
+		if(s.hasMarble() && s.getMarble().getOwner() == this.getCurrentPlayer()) {
+			this.selectedSource = s;
+			s.setFocus(true);
+			display.refresh();
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Checks to see if the current player can move the currentSource here.
+	 * @return
+	 */
+	private boolean checkMarbleDestination(Space s) {
+		return true;
+	}
+	
+	/**
+	 * Performs marble movement
+	 */
+	private void makeMove() {
+		Marble m = this.selectedSource.getMarble();
+		
+		//make swap
+		this.selectedSource.clearMarble();
+		this.selectedSource.setFocus(false);
+		this.selectedDestination.setMarble(m);
+		
+		Log.d("GAME-Move", "Marble moved from "+this.selectedSource.getLabel()+" to "+this.selectedDestination.getLabel());
+		this.marbleMoved = true;
+		this.endCurrentTurn();
 	}
 	
 	

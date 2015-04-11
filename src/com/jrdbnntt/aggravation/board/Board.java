@@ -97,16 +97,8 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 	/**
 	 * Calculates geometry of objects on board relative to size
 	 */
-	public void update() {
-		Thread t = new Thread(){
-			@Override
-			public void run() {
-				updateSync();
-			}
-		};
-		t.start();
-	}
-	public void updateSync() {
+	public void updateGeometry() {
+		Log.d("BOARD", "Updating geometry...");
 		final double ZONE_RAD_OFFSET = 2*Math.PI / Aggravation.MAX_PLAYERS;
 		final int SPACE_OFFSET_UNITS = 2;
 		final int CENTER_OFFSET_UNITS = SPACE_OFFSET_UNITS*4;
@@ -223,7 +215,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 			}
 			
 		}
-//		Log.d("BOARD","update complete");
+		Log.d("BOARD", "Geometry update complete.");
 		repaint();
 	}
 	
@@ -277,12 +269,24 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 				g2d.setColor(s.getMarble().getColor());
 				g2d.fill(circle);
 				g2d.setColor(c);
-			}
-			if(this.hoverSpace == s && s.hasHoverHighlight()) {
+				
+				if((Game.getCurrentInstance().getStatus() == Game.Status.WAITING_FOR_MARBLE_SELECTION ||
+						Game.getCurrentInstance().getStatus() == Game.Status.WAITING_FOR_MOVE_CHOICE) &&
+						this.hoverSpace == s && 
+						s.hasHoverHighlight() &&
+						s.getMarble().getOwner() == Game.getCurrentInstance().getCurrentPlayer()) {
+					//draw highlight
+					g2d.setColor(GameStyle.COLOR_SPACE_HIGHLIGHT);
+					g2d.fill(s.getHoverShape());
+				}
+			} else if(Game.getCurrentInstance().getStatus() == Game.Status.WAITING_FOR_MOVE_CHOICE &&
+					this.hoverSpace == s && 
+					s.hasHoverHighlight()) {
 				//draw highlight
 				g2d.setColor(GameStyle.COLOR_SPACE_HIGHLIGHT);
 				g2d.fill(s.getHoverShape());
 			}
+			
 		}
 		
 		g2d.setColor(c);
@@ -296,7 +300,8 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 	public void componentShown(ComponentEvent e) {}
 	@Override
 	public void componentResized(ComponentEvent e) {
-		update();
+		Log.d("BOARD", "Resized to "+ this.getWidth() + " x " + this.getHeight());
+		updateGeometry();
 	}
 	
 	
@@ -327,7 +332,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 			}
 		
 		//create space geometry
-		this.update(); 
+		this.updateGeometry(); 
 		
 		//fill spaces with marbles
 		for(int zone = 0; zone < base.length; ++zone) {
@@ -335,7 +340,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 				p = Game.getCurrentInstance().getPlayer(zone);
 				Log.d("BOARD","Player \'"+p.getName()+"\' set for zone "+zone);
 				for(Space s : base[zone])
-					s.setMarble(new Marble(zone, p.getColor()));
+					s.setMarble(new Marble(p, p.getColor()));
 			} catch(NullPointerException e) {
 				//player not set
 				Log.d("BOARD","Player not set for zone "+zone);
@@ -394,6 +399,7 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 			Log.d(KEY, "Clicked on board");
 			if(this.findSpace(p)) {
 				Log.d(KEY, "Clicked on a space " + this.getFoundSpace().getLabel());
+				Game.getCurrentInstance().onSpaceClicked(this.foundSpace);
 			}
 		}
 	}

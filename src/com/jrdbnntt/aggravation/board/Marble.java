@@ -8,21 +8,19 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
+import com.jrdbnntt.aggravation.game.Player;
+
 @SuppressWarnings("serial")
 public class Marble {
 	private static final int MARBLE_DIAMETER = 10;
-	private int ownerPlayerNum;
+	private Player owner;
 	private Color marbleColor;
 	
-	public Marble(int ownerPlayerNum, Color marbleColor) {
-		this.ownerPlayerNum = ownerPlayerNum;
+	public Marble(Player owner, Color marbleColor) {
+		this.owner = owner;
 		this.marbleColor = marbleColor;
 	}
 	
-	public int getOwner() {
-		return this.ownerPlayerNum;
-	}
-	public Color getColor() {
-		return this.marbleColor;
-	}
+	public Player getOwner() { return this.owner; }
+	public Color getColor() { return this.marbleColor; }
 }

@@ -42,15 +42,17 @@ public class GameDisplay extends JPanel {
 		this.setPreferredSize(GameDisplay.PREFERRED_SIZE);
 		this.setBackground(GameStyle.COLOR_BACKGROUND);
 		
-		GridBagConstraints gbc = new GridBagConstraints();
+		GridBagConstraints gbc;
 		
+		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.weightx = 1.0;
-		gbc.weighty = GameDisplay.BOARD_WEIGHT_Y;
+		gbc.weighty = 1.0;
 		this.add(board, gbc);
 		
+		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = 0;
 		gbc.gridy = 1;
@@ -65,8 +67,8 @@ public class GameDisplay extends JPanel {
 	 * Refreshes display content
 	 */
 	public void refresh() {
-		this.board.update();
-		this.toolBox.update();
+		this.board.updateGeometry();
+		this.toolBox.updateContent();
 		repaint();
 	}
 	

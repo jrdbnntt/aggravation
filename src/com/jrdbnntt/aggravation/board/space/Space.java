@@ -102,7 +102,6 @@ abstract public class Space {
 	public boolean hasPossibleHighlight() { return this.possibleHighlight; }
 	
 	
-	
 	//mutators
 	public void setMarble(Marble m) { this.marble = m; }
 	public void setHoverHighlight(Boolean b) { this.hoverHighight = b; }

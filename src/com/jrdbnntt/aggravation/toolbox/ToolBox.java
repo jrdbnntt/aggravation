@@ -29,12 +29,12 @@ import com.jrdbnntt.aggravation.game.Game;
 @SuppressWarnings("serial")
 public class ToolBox extends JPanel {	
 	private ArrayList<PlayerStatusView> pViews = new ArrayList<PlayerStatusView>();
-	private JEditorPane log = new JEditorPane();
+	private JEditorPane messageLog = new JEditorPane();
+	private JScrollPane sPane = new JScrollPane(messageLog);
 	private JButton bRoll = new JButton("Roll Die");
 	
 	public ToolBox() {
 		super(new GridBagLayout());
-		
 		this.setBackground(GameStyle.COLOR_BACKGROUND);
 	}
 	
@@ -42,21 +42,22 @@ public class ToolBox extends JPanel {
 	 * Sets up layout and player views. Must be called after players have been defined.
 	 */
 	public void init() {
-		GridBagConstraints gbc = new GridBagConstraints();
-		JScrollPane sPane = new JScrollPane(log);
+		GridBagConstraints gbc;
+		
 		int gx = 0;
 		
 		//setup log
-		log.setEditable(false);
-		log.setBackground(GameStyle.COLOR_BACKGROUND);
-		log.setForeground(GameStyle.COLOR_FONT);
-		log.setText("GAME START");
+		messageLog.setEditable(false);
+		messageLog.setBackground(GameStyle.COLOR_BACKGROUND);
+		messageLog.setForeground(GameStyle.COLOR_FONT);
+		messageLog.setText("GAME START");
 		
 		//Display action pane
+		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = gx;
 		gbc.gridy = 0;
-		gbc.weightx = 1.0;
+		gbc.weightx = 0.0;
 		gbc.weighty = 1.0;
 		sPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		sPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -71,6 +72,7 @@ public class ToolBox extends JPanel {
 		
 		this.add(sPane, gbc);
 		
+		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = gx++;
 		gbc.gridy = 1;
@@ -86,6 +88,7 @@ public class ToolBox extends JPanel {
 		for(int i = 0; i < turnOrder.size(); ++i) {
 			PlayerStatusView psv = new PlayerStatusView(Game.getCurrentInstance().getPlayer(turnOrder.get(i)));
 			psv.setOpaque(false);
+			gbc = new GridBagConstraints();
 			gbc.fill = GridBagConstraints.NONE;
 			gbc.gridx = gx++;
 			gbc.gridy = 0;
@@ -101,9 +104,9 @@ public class ToolBox extends JPanel {
 	/**
 	 * Updates all content with new data
 	 */
-	public void update() {
+	public void updateContent() {
 		for(PlayerStatusView psv: this.pViews)
-			psv.update();
+			psv.updateContent();
 	}
 	
 	/**
@@ -114,12 +117,13 @@ public class ToolBox extends JPanel {
 		this.addLogMessage(m, true);
 	}
 	public void addLogMessage(String m, boolean includeDate) {
+		//TODO Fix formatting bug 
 		SimpleDateFormat t = new SimpleDateFormat("hh:mm:ss");
-		String str = log.getText() + "\n";
+		String str = messageLog.getText() + "\n";
 		if(includeDate) {
 			str += "[" + t.format(new Date()) + "] ";
 		}
-		this.log.setText(str + m);
+		this.messageLog.setText(str + m);
 	}
 	
 	public JButton getRollButton() {

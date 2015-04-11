@@ -22,7 +22,8 @@ import com.jrdbnntt.aggravation.game.GameDisplay;
 import com.jrdbnntt.aggravation.game.Player;
 
 public class PlayerStatusView extends JPanel {
-	private static final Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+	private static final int BORDER_WIDTH = 3;
+	private static final Border PADDING = BorderFactory.createEmptyBorder(10, 10, 10, 10);
 	private static final String FORMAT =
 			"<html><center><font color=%s>"
 			+ "<b><u>%s</u></b><br>"
@@ -47,14 +48,14 @@ public class PlayerStatusView extends JPanel {
 		this.p = p;
 		//create components
 		name = new JLabel();
-		name.setBorder(PlayerStatusView.padding);
-		this.add(name, BorderLayout.CENTER);		
+		name.setBorder(PlayerStatusView.PADDING);
+		this.add(name, BorderLayout.CENTER);	
 	}
 	
 	/**
 	 * Retrieves player data and updates display
 	 */
-	public void update() {
+	public void updateContent() {
 		Log.d("PSV", "\'"+p.getName()+"\' Update");
 		
 		name.setText(String.format(PlayerStatusView.FORMAT, 
@@ -67,11 +68,10 @@ public class PlayerStatusView extends JPanel {
 				));
 		
 		if(this.p.getStatus() == Player.Status.CURRENT_PLAYER) {
-			this.setBorder(BorderFactory.createLineBorder(p.getColor(), 3, true));
+			this.setBorder(BorderFactory.createLineBorder(p.getColor(), BORDER_WIDTH, true));
 		} else {
-			this.setBorder(BorderFactory.createEmptyBorder());
+			this.setBorder(BorderFactory.createEmptyBorder(BORDER_WIDTH,BORDER_WIDTH,BORDER_WIDTH,BORDER_WIDTH));
 		}
-			
-		
+//		repaint();
 	}
 }
