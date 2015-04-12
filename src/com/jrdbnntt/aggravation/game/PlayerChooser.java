@@ -8,9 +8,14 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -27,6 +32,7 @@ import javax.swing.event.ChangeListener;
 
 import com.jrdbnntt.aggravation.Aggravation;
 import com.jrdbnntt.aggravation.GameStyle;
+import com.jrdbnntt.aggravation.Util.Log;
 
 @SuppressWarnings("serial")
 public class PlayerChooser extends JPanel {		
@@ -34,6 +40,7 @@ public class PlayerChooser extends JPanel {
 	private PlayerOption[] options = new PlayerOption[Aggravation.MAX_PLAYERS];
 	private JButton bStart = new JButton("START");
 	private Aggravation context;
+	private BufferedImage tPic;
 	
 	public PlayerChooser(Aggravation ctxt) {
 		super(new GridBagLayout());
@@ -43,8 +50,15 @@ public class PlayerChooser extends JPanel {
 		this.setOpaque(false);
 		
 		//setup comps
-//		title = new JLabel(new ImageIcon(this.getClass().getResource("/img/boxCover.jpg"))); //TODO
-		title = new JLabel("Aggravation");
+		try {
+			tPic = ImageIO.read(this.getClass().getResource("/img/boxCover.jpg"));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		title = new JLabel(" ");
+		title.setVerticalAlignment(JLabel.CENTER);
+		title.setHorizontalAlignment(JLabel.CENTER);
 		title.setFont(GameStyle.FONT_TITLE);
 		title.setForeground(Color.WHITE);
 		bStart.addActionListener(new ActionListener() {
@@ -96,7 +110,25 @@ public class PlayerChooser extends JPanel {
 		
 		
 	}
-	
+	public void resizeImage() {
+		int w, h;
+		final double ratio = (double)tPic.getWidth()/tPic.getHeight();
+		
+		w = title.getWidth();
+		h = title.getHeight();
+		
+		if(h > 0 && w > 0) {
+			title.setText("");
+			if(h < w) {
+				title.setIcon(new ImageIcon(tPic.getScaledInstance(w, (int)(w/ratio), Image.SCALE_DEFAULT)));
+			} else {
+				title.setIcon(new ImageIcon(tPic.getScaledInstance((int)(h/ratio),h, Image.SCALE_DEFAULT)));
+			}
+		} else {
+			Log.e("ILOAD", "Lable = 0");
+		}
+		
+	}
 	
 	private class PlayerOption extends JPanel {
 		private boolean enabled;
@@ -159,4 +191,7 @@ public class PlayerChooser extends JPanel {
 		
 		
 	}
+
+
+	
 }

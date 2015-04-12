@@ -248,8 +248,8 @@ public class Aggravation extends JFrame implements ActionListener {
 			PlayerChooser pc = new PlayerChooser(this);
 			this.content.removeAll();
 			this.content.add(pc);
-//			
 			this.pack();
+			pc.resizeImage();
 			break;
 		case Aggravation.AC_GAME_TITLE:	//TODO
 			
