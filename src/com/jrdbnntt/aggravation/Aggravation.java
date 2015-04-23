@@ -39,6 +39,7 @@ import javax.swing.text.SimpleAttributeSet;
 import com.jrdbnntt.aggravation.Util.Log;
 import com.jrdbnntt.aggravation.game.Game;
 import com.jrdbnntt.aggravation.game.GameDisplay;
+import com.jrdbnntt.aggravation.game.GameLoader;
 import com.jrdbnntt.aggravation.game.Player;
 import com.jrdbnntt.aggravation.game.PlayerChooser;
 
@@ -245,11 +246,12 @@ public class Aggravation extends JFrame implements ActionListener {
 			
 			break;
 		case Aggravation.AC_GAME_START:
-			PlayerChooser pc = new PlayerChooser(this);
+			GameLoader gl = new GameLoader(this);
 			this.content.removeAll();
-			this.content.add(pc);
+			this.content.add(gl);
 			this.pack();
-			pc.resizeImage();
+			gl.load();
+			this.repaint();
 			break;
 		case Aggravation.AC_GAME_TITLE:	//TODO
 			
@@ -258,6 +260,13 @@ public class Aggravation extends JFrame implements ActionListener {
 			
 			break;
 		}
+	}
+	
+	public void startPlayerChooser(PlayerChooser pc) {
+		this.content.removeAll();
+		this.content.add(pc);
+		this.pack();
+		pc.resizeImage();
 	}
 	
 	public void startNewGame(Player[] pSet) {

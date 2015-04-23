@@ -33,7 +33,7 @@ public class Game implements ActionListener {
 	public static final String
 		AK_ROLL = "AK_ROLL";
 	
-	private static final Game CURRENT_INSTANCE = new Game();
+	private static Game currInstance;
 	private static final int DIE_SIDES = 6;
 	
 	private Player[] players = new Player[Aggravation.MAX_PLAYERS];
@@ -56,8 +56,12 @@ public class Game implements ActionListener {
 		init();
 	}
 	
+	
+	public static void load() {
+		Game.currInstance = new Game();
+	}
 	public static Game getCurrentInstance() {
-		return Game.CURRENT_INSTANCE;
+		return Game.currInstance;
 	}
 	
 	/**
