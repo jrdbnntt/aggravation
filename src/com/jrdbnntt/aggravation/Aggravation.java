@@ -250,8 +250,8 @@ public class Aggravation extends JFrame implements ActionListener {
 			this.content.removeAll();
 			this.content.add(gl);
 			this.pack();
-			gl.load();
 			this.repaint();
+			gl.load();
 			break;
 		case Aggravation.AC_GAME_TITLE:	//TODO
 			

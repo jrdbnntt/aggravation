@@ -4,11 +4,13 @@
 
 package com.jrdbnntt.aggravation.game;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import com.jrdbnntt.aggravation.Aggravation;
@@ -36,30 +38,14 @@ public class GameDisplay extends JPanel {
 	private ToolBox toolBox = new ToolBox();
 	
 	public GameDisplay() {
-		super(new GridBagLayout());
+		super(new BorderLayout());
 		
 		this.setMinimumSize(GameDisplay.MINIMUM_SIZE);
 		this.setPreferredSize(GameDisplay.PREFERRED_SIZE);
 		this.setBackground(GameStyle.COLOR_BACKGROUND);
 		
-		GridBagConstraints gbc;
-		
-		gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 1.0;
-		gbc.weighty = 1.0;
-		this.add(board, gbc);
-		
-		gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.weightx = 1.0;
-		gbc.weighty = 1 - GameDisplay.BOARD_WEIGHT_Y;
-		this.add(toolBox, gbc);
-		
+		this.add(board, BorderLayout.CENTER);
+		this.add(toolBox, BorderLayout.SOUTH);
 		init();
 	}
 	

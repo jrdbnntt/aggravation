@@ -3,6 +3,7 @@ package com.jrdbnntt.aggravation.board.space;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
 
 public class CornerSpace extends Space {
 	
@@ -43,7 +44,19 @@ public class CornerSpace extends Space {
 		case NONE:
 			break;
 		}
-			
+		
+		//draw outer ring
+		double nr = this.getShape().getWidth()/2*1.6;	//new radius
+		Ellipse2D.Double ring = new Ellipse2D.Double(
+				this.getShape().getCenterX() - nr,
+				this.getShape().getCenterY() - nr,
+				2*nr,2*nr
+				);
+		g2d.setStroke(Space.BORDER_NORMAL);
+		g2d.draw(ring);
+		
+		
+		
 			
 		//reset settings
 		g2d.setColor(prevColor);

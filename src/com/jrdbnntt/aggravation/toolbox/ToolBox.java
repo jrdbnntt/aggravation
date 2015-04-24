@@ -14,14 +14,19 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
+import javax.tools.Tool;
 
 import com.jrdbnntt.aggravation.GameStyle;
 import com.jrdbnntt.aggravation.game.Game;
@@ -29,77 +34,82 @@ import com.jrdbnntt.aggravation.game.Game;
 @SuppressWarnings("serial")
 public class ToolBox extends JPanel {	
 	private ArrayList<PlayerStatusView> pViews = new ArrayList<PlayerStatusView>();
-	private JEditorPane messageLog = new JEditorPane();
-	private JScrollPane sPane = new JScrollPane(messageLog);
+	
+
+	ArrayList<String> logData = new ArrayList<String>();
+	private JPanel logBox;
+	private JScrollPane logScroll;
 	private JButton bRoll = new JButton("Roll Die");
+	
+	
+	private static Dimension DIM_MAX = new Dimension (10000,100);
+	private static Dimension DIM_LOG_MAX = new Dimension (100,100);
 	
 	public ToolBox() {
 		super(new GridBagLayout());
 		this.setBackground(GameStyle.COLOR_BACKGROUND);
+		this.setMaximumSize(DIM_MAX);
 	}
 	
 	/**
 	 * Sets up layout and player views. Must be called after players have been defined.
 	 */
 	public void init() {
-		GridBagConstraints gbc;
 		
-		int gx = 0;
-		
-		//setup log
-		messageLog.setEditable(false);
-		messageLog.setBackground(GameStyle.COLOR_BACKGROUND);
-		messageLog.setForeground(GameStyle.COLOR_FONT);
-		messageLog.setText("GAME START");
-		
-		//Display action pane
-		gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = gx;
-		gbc.gridy = 0;
-		gbc.weightx = 0.0;
-		gbc.weighty = 1.0;
-		sPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		sPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		sPane.setBackground(GameStyle.COLOR_BACKGROUND);
-		sPane.setBorder(BorderFactory.createTitledBorder(
+		//Create Log
+		logBox = new JPanel(new BorderLayout());
+		logScroll = new JScrollPane();
+		logScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		logScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		logScroll.setBackground(GameStyle.COLOR_BACKGROUND);
+		logScroll.setBorder(BorderFactory.createTitledBorder(
 				GameStyle.BORDER_BASIC,
 				"Game Log",
 				TitledBorder.DEFAULT_POSITION,
 				TitledBorder.DEFAULT_JUSTIFICATION,
 				GameStyle.FONT_TITLE,
 				GameStyle.COLOR_FONT));
+		logScroll.setMaximumSize(ToolBox.DIM_LOG_MAX);
 		
-		this.add(sPane, gbc);
+		addLogMessage("GAME START", false);
 		
-		gbc = new GridBagConstraints();
+		logBox.add(logScroll, BorderLayout.CENTER);
+		
+		bRoll.setEnabled(false);
+		bRoll.setOpaque(false);
+		bRoll.setActionCommand(Game.AK_ROLL);
+		logBox.add(bRoll, BorderLayout.SOUTH);
+		
+		
+		
+		
+		// Add everything to this
+		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = gx++;
-		gbc.gridy = 1;
-		gbc.weightx = .2;
-		gbc.weighty = .1;
-		this.bRoll.setEnabled(false);
-		this.bRoll.setOpaque(false);
-		this.bRoll.setActionCommand(Game.AK_ROLL);
-		this.add(bRoll, gbc);
-		
-		//list out playerviews
+		gbc.weightx = 1.0;
+		gbc.weighty = 1.0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		this.add(logBox, gbc);
+
 		ArrayList<Integer> turnOrder = Game.getCurrentInstance().getTurnOrder();
 		for(int i = 0; i < turnOrder.size(); ++i) {
 			PlayerStatusView psv = new PlayerStatusView(Game.getCurrentInstance().getPlayer(turnOrder.get(i)));
 			psv.setOpaque(false);
+			
+			this.pViews.add(psv);
+			
 			gbc = new GridBagConstraints();
 			gbc.fill = GridBagConstraints.NONE;
-			gbc.gridx = gx++;
-			gbc.gridy = 0;
-			gbc.weightx = .3;
+			gbc.weightx = .2;
 			gbc.weighty = 1.0;
-			gbc.gridheight = 2;
+			gbc.gridx = i+1;
+			gbc.gridy = 0;
 			this.add(psv, gbc);
-			this.pViews.add(psv);
 		}
+		
 	}
-	
+		
 	
 	/**
 	 * Updates all content with new data
@@ -117,17 +127,22 @@ public class ToolBox extends JPanel {
 		this.addLogMessage(m, true);
 	}
 	public void addLogMessage(String m, boolean includeDate) {
-		//TODO Fix formatting bug 
+		String newLog = m;
 		SimpleDateFormat t = new SimpleDateFormat("hh:mm:ss");
-		String str = messageLog.getText() + "\n";
 		if(includeDate) {
-			str += "[" + t.format(new Date()) + "] ";
+			newLog = "[" + t.format(new Date()) + "] " + newLog;
 		}
-//		this.messageLog.setText(str + m);
-		this.messageLog.setText(m);
+		
+		logData.add(newLog);
+		JList list = new JList(logData.toArray());
+		logScroll.setViewportView(list);
+		logScroll.getVerticalScrollBar().setValue(logScroll.getVerticalScrollBar().getMaximum());
 	}
 	
 	public JButton getRollButton() {
 		return this.bRoll;
 	}
+	
+	
+	
 }
