@@ -25,6 +25,14 @@ public class Util {
 					c.getAlpha()
 					);
 		}
+		public static Color fade(Color c) {
+			return new Color(
+					c.getRed(),
+					c.getGreen(),
+					c.getBlue(),
+					c.getAlpha()/2
+					);
+		}
 		public static String getHexString(Color c) {
 			return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
 		}

@@ -30,6 +30,7 @@ import com.jrdbnntt.aggravation.board.space.CornerSpace;
 import com.jrdbnntt.aggravation.board.space.HomeSpace;
 import com.jrdbnntt.aggravation.board.space.LoopSpace;
 import com.jrdbnntt.aggravation.board.space.Space;
+import com.jrdbnntt.aggravation.board.space.StartSpace;
 import com.jrdbnntt.aggravation.game.Game;
 import com.jrdbnntt.aggravation.game.Player;
 
@@ -300,7 +301,10 @@ public class Board extends JPanel implements ComponentListener, MouseMotionListe
 		for(int i = 0; i < loop.length; ++i)
 			if(i % ZONE_OFFSET == 0)
 				loop[i] = new CornerSpace(i/ZONE_OFFSET);
-			else 
+			else if (i % ZONE_OFFSET == START_OFFSET) {
+				int zone = i/ZONE_OFFSET;
+				loop[i] = new StartSpace(zone,i,Game.getCurrentInstance().getPlayer(zone));
+			} else 
 				loop[i] = new LoopSpace(i);
 		for(int zone = 0; zone < base.length; ++zone)
 			for(int i = 0; i < base[zone].length; ++i) {

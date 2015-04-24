@@ -3,35 +3,37 @@ package com.jrdbnntt.aggravation.board.space;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
-import java.awt.geom.Ellipse2D;
 
-public class CornerSpace extends Space {
-	
+import com.jrdbnntt.aggravation.Util.ColorManager;
+import com.jrdbnntt.aggravation.board.space.Space.Type;
+import com.jrdbnntt.aggravation.game.Player;
 
-	private static final Color 
-		BORDER_COLOR = Space.BORDER_COLOR_DEFAULT,
-		FILL_COLOR = Space.FILL_COLOR_DEFAULT;
-	
-	public CornerSpace(int id) {
-		super(id);
+public class StartSpace extends PlayerSpace {
+	public StartSpace(int zone, int id, Player p) {
+		super(zone,id,p);
 	}
 	
 	@Override
 	public Type getType() {
-		return Space.Type.CORNER;
+		return Space.Type.LOOP; //not special, just visuals
 	}
-
+	
 	@Override
 	public void paint(Graphics2D g2d) {
 		Color prevColor = g2d.getColor();
 		Stroke prevStroke = g2d.getStroke();
 		
+		
+		//draw poly in bg
+		g2d.setColor(ColorManager.fade(this.owner.getColor()));
+		g2d.draw(this.getBox());
+		
 		//fill it
-		g2d.setColor(CornerSpace.FILL_COLOR);
+		g2d.setColor(this.fillColor);
 		g2d.fill(this.getShape());
 		
 		//border it
-		g2d.setColor(CornerSpace.BORDER_COLOR);
+		g2d.setColor(this.borderColor);
 		switch(this.borderStatus) {
 		case BOLD: 
 			g2d.setStroke(Space.BORDER_BOLD);
@@ -44,16 +46,6 @@ public class CornerSpace extends Space {
 		case NONE:
 			break;
 		}
-		
-		//draw outer ring
-		double nr = this.getShape().getWidth()/2*1.6;	//new radius
-		Ellipse2D.Double ring = new Ellipse2D.Double(
-				this.getShape().getCenterX() - nr,
-				this.getShape().getCenterY() - nr,
-				2*nr,2*nr
-				);
-		g2d.setStroke(Space.BORDER_NORMAL);
-		g2d.draw(ring);
 		
 			
 		//reset settings

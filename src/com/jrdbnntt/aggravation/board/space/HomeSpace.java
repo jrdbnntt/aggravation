@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 
+import com.jrdbnntt.aggravation.Util.ColorManager;
 import com.jrdbnntt.aggravation.game.Player;
 
 public class HomeSpace extends PlayerSpace {
@@ -21,6 +22,11 @@ public class HomeSpace extends PlayerSpace {
 	public void paint(Graphics2D g2d) {
 		Color prevColor = g2d.getColor();
 		Stroke prevStroke = g2d.getStroke();
+		
+		
+		//draw poly in bg
+		g2d.setColor(ColorManager.fade(this.owner.getColor()));
+		g2d.fill(this.getBox());
 		
 		//fill it
 		g2d.setColor(this.fillColor);
@@ -40,7 +46,7 @@ public class HomeSpace extends PlayerSpace {
 		case NONE:
 			break;
 		}
-			
+		
 			
 		//reset settings
 		g2d.setColor(prevColor);
